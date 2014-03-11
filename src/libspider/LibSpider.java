@@ -8,10 +8,9 @@ package libspider;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Map;
-import network.HTTPTool;
 import network.HttpClientAdaptor;
 import util.PageParserUserInfo;
-import util.PatternTool;
+
 
 /**
  *
@@ -22,7 +21,7 @@ public class LibSpider {
    
     public static void main(String[] args) throws MalformedURLException, IOException {
         // TODO code application logic here
-       String userid = "20101003712";
+       String userid = "20101003714";
        
        HttpClientAdaptor httpClient = new HttpClientAdaptor();
        PageParserUserInfo userInfoPaser = new PageParserUserInfo(userid,httpClient);

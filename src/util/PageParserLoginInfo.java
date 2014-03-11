@@ -23,11 +23,10 @@ public class PageParserLoginInfo extends PageParser{
     static public final String kUserPageUrl = "_userPageUrlKey_";
     
     private String userid ;
-    private final HttpClientAdaptor httpClient ; 
     
     public PageParserLoginInfo(String userid,HttpClientAdaptor httpClient) {
+        super(httpClient);
         this.userid = userid;
-        this.httpClient = httpClient;
     }
 
     public String getUserid() {

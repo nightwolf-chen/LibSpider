@@ -8,12 +8,20 @@ package util;
 
 import java.util.ArrayList;
 import java.util.Map;
+import network.HttpClientAdaptor;
 
 /**
  *
  * @author bruce
  */
 public abstract class PageParser {
+    
+    protected final HttpClientAdaptor httpClient;
+    
+    public PageParser(HttpClientAdaptor httpClient){
+        this.httpClient = httpClient;
+    }
+    
     abstract public Map<String,String> parserPageForData();
     abstract public ArrayList<Object> parserPageForRepeatedData();
 }

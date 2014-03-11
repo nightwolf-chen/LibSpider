@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import network.HTTPTool;
 import network.HttpClientAdaptor;
 
 /**
@@ -26,11 +25,10 @@ public class PageParserUserInfo extends PageParser {
     public static final String kBorrowHistoryUrl = "kBorrowHistoryUrl";
 
     private String userid;
-    private final HttpClientAdaptor httpClient;
-
+  
     public PageParserUserInfo(String userid, HttpClientAdaptor httpClient) {
+        super(httpClient);
         this.userid = userid;
-        this.httpClient = httpClient;
     }
 
     @Override
@@ -63,8 +61,6 @@ public class PageParserUserInfo extends PageParser {
 
         if (userInfoUpdateUrl != null) {
             String updatePageContent = this.httpClient.doGet(userInfoUpdateUrl);
-            System.out.println(userInfoUpdateUrl);
-            System.out.print(updatePageContent);
             String name = null;
             String college = null;
             String major = null;
