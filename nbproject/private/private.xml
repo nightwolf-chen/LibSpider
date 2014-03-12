@@ -8,10 +8,10 @@
             <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/paser/PageParser.java</file>
             <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/libspider/Spider.java</file>
             <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/paser/PageParserBorrowList.java</file>
+            <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/paser/PageParserBookDetail.java</file>
             <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/libspider/LibSpider.java</file>
             <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/paser/PageParserUserInfo.java</file>
             <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/network/HttpClientAdaptor.java</file>
-            <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/libspider/SingleUserCrawlResult.java</file>
         </group>
     </open-files>
 </project-private>
