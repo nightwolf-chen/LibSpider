@@ -69,10 +69,17 @@ public class Spider {
           long startUserid = 1000000;
           long endUserid   = 1020000;
           
-          for(long userid = startUserid ; userid < endUserid ;userid++){
-              String useridStr = "2010" + String.valueOf(userid);
-              System.out.println(useridStr);
-          }
+//          startUserid = 1003712;
+//          endUserid = 1003712;
+//          
+//          for(long userid = startUserid ; userid <= endUserid ;userid++){
+//              String useridStr = "2010" + String.valueOf(userid);
+//              SingleUserCrawlResult aUserResult = this.crawlDataForUser(useridStr);
+//              aUserResult.saveToDB();
+//          }
+          
+             SingleUserCrawlResult aUserResult = this.crawlDataForUser("20101003713");
+             aUserResult.saveToDB();
     }
     
 }

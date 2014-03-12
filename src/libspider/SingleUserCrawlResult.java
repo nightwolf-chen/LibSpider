@@ -16,14 +16,16 @@
 
 package libspider;
 
+import db.DBPersitance;
 import java.util.List;
+import object.BookBorrowHistory;
 import object.User;
 
 /**
  *
  * @author bruce
  */
-public class SingleUserCrawlResult {
+public class SingleUserCrawlResult implements DBPersitance{
     
     private final User user;
     private final List<Object> borrowList;
@@ -41,5 +43,14 @@ public class SingleUserCrawlResult {
         return borrowList;
     }
     
-    
+    @Override
+    public void saveToDB() {
+        
+        this.user.saveToDB();
+        
+        for(Object obj : borrowList){
+            BookBorrowHistory borrowHistory = (BookBorrowHistory)obj;
+            borrowHistory.saveToDB();
+        }
+    }
 }

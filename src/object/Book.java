@@ -6,11 +6,21 @@
 
 package object;
 
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.Statement;
+import db.ConnectionManager;
+import db.DBPersitance;
+import db.OnlineDatabaseAccessor;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author bruce
  */
-public class Book {
+public class Book implements DBPersitance{
     
     private String bookName;
     private String author;
@@ -99,6 +109,32 @@ public class Book {
 
     public void setAcquireCode(String acquireCode) {
         this.acquireCode = acquireCode;
+    }
+
+    @Override
+    public void saveToDB() {
+        
+        try {
+            
+            ConnectionManager conMgr = new ConnectionManager();
+            Connection con = conMgr.getConnection();
+            Statement stmt = OnlineDatabaseAccessor.createStatement(con);
+            String sql = "insert into lib_book(bookname,author,publishtime,location,linkurl,topic"
+                    + ",publisher,categorycode,acquirecode,lang) values('"+bookName+"','"+author+
+                    "','"+publishTime+"','"+location+"','"+linkUrl+"','"+topic+"','"+publisher+
+                    "','"+categoryCode+"','"+acquireCode+"','"+lang+"')";
+            
+            boolean isSuccess = OnlineDatabaseAccessor.insert(stmt, sql);
+            
+            
+            stmt.close();
+            stmt=null;
+            con.close();
+            con=null;
+        } catch (SQLException ex) {
+            Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
 }
