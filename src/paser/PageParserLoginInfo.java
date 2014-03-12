@@ -47,6 +47,10 @@ public class PageParserLoginInfo extends PageParser{
         String pageContent = this.httpClient.doPost(urlStr, parameters);
         String userPageUrl = patternTool.findStringPattern(regex, pageContent, 1);
         
+        if(userPageUrl == null){
+            return null;
+        }
+        
         Map<String,String> data = new HashMap<>();
         
         data.put(PageParserLoginInfo.kUserPageUrl, userPageUrl);

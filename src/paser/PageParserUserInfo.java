@@ -40,6 +40,11 @@ public class PageParserUserInfo extends PageParser {
         PageParserLoginInfo loginParser = new PageParserLoginInfo(this.userid, this.httpClient);
         Map<String, String> tmpData = loginParser.parserPageForData();
         String urlStr = tmpData.get(PageParserLoginInfo.kUserPageUrl);
+        
+        if(urlStr == null){
+            return null;
+        }
+        
         String regex = "<td class=td2 align=left> \n"
                 + "        借阅历史列表 \n"
                 + "  </td> \n"
