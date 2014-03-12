@@ -12,8 +12,9 @@ import java.util.Map;
 import network.HttpClientAdaptor;
 import object.BookBorrowHistory;
 import object.User;
-import util.PageParserBorrowList;
-import util.PageParserUserInfo;
+import paser.PageParserBookDetail;
+import paser.PageParserBorrowList;
+import paser.PageParserUserInfo;
 
 /**
  *
@@ -41,9 +42,12 @@ public class LibSpider {
         ArrayList<Object> list =  borrowListPaser.parserPageForRepeatedData();
         
         BookBorrowHistory bookBorrowHistory = (BookBorrowHistory)list.get(0);
-        System.out.println(userInfo);
-        System.out.println(list.size());
-        System.out.println(bookBorrowHistory.getaBook().getBookName());
+//        System.out.println(userInfo);
+//        System.out.println(list.size());
+//        System.out.println(bookBorrowHistory.getaBook().getBookName());
+        String bookDetailUrl = bookBorrowHistory.getaBook().getLinkUrl();
+        PageParserBookDetail bookDetailParser = new PageParserBookDetail(bookDetailUrl, httpClient);
+        bookDetailParser.parserPageForData();
     }
 
 }

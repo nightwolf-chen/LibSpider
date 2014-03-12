@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package util;
+package paser;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -76,7 +76,11 @@ public class PageParserBorrowList extends PageParser{
             String actuelReturnTime = matcher.group(10) + matcher.group(11);
             String location = matcher.group(13);
             
-            Book aBook = new Book(bookName, author, publishTime, location, bookDetailUrl);
+            Book aBook = new Book(bookName, author);
+            aBook.setPublishTime(publishTime);
+            aBook.setLocation(location);
+            aBook.setLinkUrl(bookDetailUrl);
+            
             BookBorrowHistory borrowHistory = new BookBorrowHistory(userid, aBook, shouldReturnTime, actuelReturnTime);
             list.add(borrowHistory);
         }
