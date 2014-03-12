@@ -25,7 +25,7 @@ public class PageParserUserInfo extends PageParser {
     public static final String kBorrowHistoryUrl = "kBorrowHistoryUrl";
 
     private String userid;
-  
+
     public PageParserUserInfo(String userid, HttpClientAdaptor httpClient) {
         super(httpClient);
         this.userid = userid;
@@ -39,12 +39,11 @@ public class PageParserUserInfo extends PageParser {
 
         PageParserLoginInfo loginParser = new PageParserLoginInfo(this.userid, this.httpClient);
         Map<String, String> tmpData = loginParser.parserPageForData();
-        String urlStr = tmpData.get(PageParserLoginInfo.kUserPageUrl);
-        
-        if(urlStr == null){
+        if (tmpData == null) {
             return null;
         }
-        
+        String urlStr = tmpData.get(PageParserLoginInfo.kUserPageUrl);
+
         String regex = "<td class=td2 align=left> \n"
                 + "        借阅历史列表 \n"
                 + "  </td> \n"
@@ -52,6 +51,9 @@ public class PageParserUserInfo extends PageParser {
 
         PatternTool patternTool = new PatternTool();
         String pageContent = this.httpClient.doGet(urlStr);
+        if (pageContent == null) {
+            return null;
+        }
         String userBookListUrl = patternTool.findStringPattern(regex, pageContent, 1);
         data.put(kBorrowHistoryUrl, userBookListUrl);
 
@@ -66,26 +68,29 @@ public class PageParserUserInfo extends PageParser {
 
         if (userInfoUpdateUrl != null) {
             String updatePageContent = this.httpClient.doGet(userInfoUpdateUrl);
-            String name = null;
-            String college = null;
-            String major = null;
-            String regex3 = "<td class=td2> <input size=30 name=\"F0(.*?)\" value=\"(.*?)\"></td> ";
-            Pattern pattern3 = Pattern.compile(regex3);
-            Matcher matcher3 = pattern3.matcher(updatePageContent);
-            while (matcher3.find()) {
-                
-                if( matcher3.group(1).equals("3") ){
-                    name = matcher3.group(2);
-                }else if(matcher3.group(1).equals("4")){
-                    college = matcher3.group(2);
-                }else if(matcher3.group(1).equals("5")){
-                    major = matcher3.group(2);
-                }
-            }
 
-            data.put(kName, name);
-            data.put(kCollege, college);
-            data.put(kMajor, major);
+            if (updatePageContent != null) {
+                String name = null;
+                String college = null;
+                String major = null;
+                String regex3 = "<td class=td2> <input size=30 name=\"F0(.*?)\" value=\"(.*?)\"></td> ";
+                Pattern pattern3 = Pattern.compile(regex3);
+                Matcher matcher3 = pattern3.matcher(updatePageContent);
+                while (matcher3.find()) {
+
+                    if (matcher3.group(1).equals("3")) {
+                        name = matcher3.group(2);
+                    } else if (matcher3.group(1).equals("4")) {
+                        college = matcher3.group(2);
+                    } else if (matcher3.group(1).equals("5")) {
+                        major = matcher3.group(2);
+                    }
+                }
+
+                data.put(kName, name);
+                data.put(kCollege, college);
+                data.put(kMajor, major);
+            }
         }
 
         return data;

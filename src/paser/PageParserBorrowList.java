@@ -50,6 +50,10 @@ public class PageParserBorrowList extends PageParser{
         
         String pageContent = this.httpClient.doGet(this.url);
         
+         if(pageContent == null){
+            return null;
+        }
+        
         String regex = " <tr> \n" +
         "  <td class=td1 id=centered valign=top><A HREF=(.*?)>(.*?)</A></td> \n" +
         "  <td class=td1 valign=top><a href=\"(.*?)\" target=_blank>(.*?)</a></td> \n" +
@@ -83,6 +87,7 @@ public class PageParserBorrowList extends PageParser{
             
             BookBorrowHistory borrowHistory = new BookBorrowHistory(userid, aBook, shouldReturnTime, actuelReturnTime);
             list.add(borrowHistory);
+            
         }
         
         

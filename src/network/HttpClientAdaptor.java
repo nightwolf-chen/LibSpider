@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -35,12 +36,15 @@ public class HttpClientAdaptor {
     public HttpClientAdaptor() {
         CookieStore cookieStore = new BasicCookieStore();
         localContext.setCookieStore(cookieStore);
+        
     }
 
     public String doGet(String url) {
         
         try {
             HttpGet httpGet = new HttpGet(url);
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(20000).setConnectTimeout(20000).build();//设置请求和传输超时时间
+            httpGet.setConfig(requestConfig);
             CloseableHttpResponse response = this.httpclient.execute(httpGet,localContext);
             
             BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
@@ -64,6 +68,8 @@ public class HttpClientAdaptor {
         try {
 
             HttpPost httpPost = new HttpPost(url);
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(20000).setConnectTimeout(20000).build();//设置请求和传输超时时间
+            httpPost.setConfig(requestConfig);
             httpPost.setEntity(new UrlEncodedFormEntity(parameters));
             CloseableHttpResponse response = this.httpclient.execute(httpPost, localContext);
             

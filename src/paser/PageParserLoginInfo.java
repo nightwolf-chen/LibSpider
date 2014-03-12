@@ -45,6 +45,11 @@ public class PageParserLoginInfo extends PageParser{
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("userid", userid));
         String pageContent = this.httpClient.doPost(urlStr, parameters);
+        
+         if(pageContent == null){
+            return null;
+        }
+        
         String userPageUrl = patternTool.findStringPattern(regex, pageContent, 1);
         
         if(userPageUrl == null){

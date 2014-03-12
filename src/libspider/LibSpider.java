@@ -16,9 +16,11 @@ public class LibSpider {
 
     public static void main(String[] args) throws MalformedURLException, IOException {
         // TODO code application logic here
-        String userid = "20101003710";
-        Spider spider = new Spider();
-        spider.crawlForAllPossibleUserAndSaveToDB();
+//        for(int i = 0 ; i < ConcurrencyManager.nThreads ;i++){
+//            ConcurrencyManager.mainEventExecutor.execute(new Spider());
+//        }
+//  
+            new Spider().run();
     }
 
 }

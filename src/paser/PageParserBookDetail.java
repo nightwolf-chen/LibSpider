@@ -49,7 +49,10 @@ public class PageParserBookDetail extends PageParser {
         Map<String, String> data = new HashMap<>();
 
         String pageContent = this.httpClient.doGet(this.bookDetailUrl);
-
+        
+        if(pageContent == null){
+            return null;
+        }
         String regex1 = "<tr> \n"
                 + "  <td class=td1 \n"
                 + "      id=bold \n"
