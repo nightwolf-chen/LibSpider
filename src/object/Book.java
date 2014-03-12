@@ -11,7 +11,6 @@ import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.DBPersitance;
 import db.OnlineDatabaseAccessor;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -123,6 +122,8 @@ public class Book implements DBPersitance{
                     + ",publisher,categorycode,acquirecode,lang) values('"+bookName+"','"+author+
                     "','"+publishTime+"','"+location+"','"+linkUrl+"','"+topic+"','"+publisher+
                     "','"+categoryCode+"','"+acquireCode+"','"+lang+"')";
+            
+            System.out.println(sql);
             
             boolean isSuccess = OnlineDatabaseAccessor.insert(stmt, sql);
             

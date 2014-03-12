@@ -78,8 +78,11 @@ public class Spider {
 //              aUserResult.saveToDB();
 //          }
           
-             SingleUserCrawlResult aUserResult = this.crawlDataForUser("20101003713");
-             aUserResult.saveToDB();
+             SingleUserCrawlResult aUserResult = this.crawlDataForUser("20101003710");
+            
+             if(aUserResult != null){
+                aUserResult.saveToDB();
+             }
     }
     
 }

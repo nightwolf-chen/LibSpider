@@ -69,8 +69,8 @@ public class PageParserBorrowList extends PageParser{
         while(matcher.find()){
             String borrowInfoUrl = matcher.group(1);
             String bookDetailUrl = matcher.group(3);
-            String author = matcher.group(4);
-            String bookName = matcher.group(6);
+            String author = matcher.group(4).replaceAll("'", "''");
+            String bookName = matcher.group(6).replaceAll("'", "''");
             String publishTime = matcher.group(7);
             String shouldReturnTime = matcher.group(8) + matcher.group(9);
             String actuelReturnTime = matcher.group(10) + matcher.group(11);

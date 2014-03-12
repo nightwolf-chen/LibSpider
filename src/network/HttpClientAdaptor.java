@@ -66,7 +66,7 @@ public class HttpClientAdaptor {
             HttpPost httpPost = new HttpPost(url);
             httpPost.setEntity(new UrlEncodedFormEntity(parameters));
             CloseableHttpResponse response = this.httpclient.execute(httpPost, localContext);
-
+            
             BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
             String htmlStr = "";
