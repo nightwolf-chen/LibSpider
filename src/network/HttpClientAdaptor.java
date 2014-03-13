@@ -9,7 +9,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.NameValuePair;
@@ -30,13 +32,13 @@ import org.apache.http.impl.client.HttpClients;
  */
 public class HttpClientAdaptor {
 
-    private final CloseableHttpClient httpclient = HttpClients.createDefault();
+    
+    protected  CloseableHttpClient httpclient = HttpClients.createDefault();
     private final HttpClientContext localContext = HttpClientContext.create();
-
+   
     public HttpClientAdaptor() {
         CookieStore cookieStore = new BasicCookieStore();
         localContext.setCookieStore(cookieStore);
-        
     }
 
     public String doGet(String url) {
