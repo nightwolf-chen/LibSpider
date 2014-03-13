@@ -9,9 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.NameValuePair;
@@ -45,7 +43,7 @@ public class HttpClientAdaptor {
         
         try {
             HttpGet httpGet = new HttpGet(url);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(20000).setConnectTimeout(20000).build();//设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(3000).setConnectTimeout(3000).build();//设置请求和传输超时时间
             httpGet.setConfig(requestConfig);
             CloseableHttpResponse response = this.httpclient.execute(httpGet,localContext);
             
@@ -70,7 +68,7 @@ public class HttpClientAdaptor {
         try {
 
             HttpPost httpPost = new HttpPost(url);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(20000).setConnectTimeout(20000).build();//设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(3000).setConnectTimeout(3000).build();//设置请求和传输超时时间
             httpPost.setConfig(requestConfig);
             httpPost.setEntity(new UrlEncodedFormEntity(parameters));
             CloseableHttpResponse response = this.httpclient.execute(httpPost, localContext);

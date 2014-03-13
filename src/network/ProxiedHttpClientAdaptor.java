@@ -27,7 +27,9 @@ import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 public class ProxiedHttpClientAdaptor extends HttpClientAdaptor {
 
     public ProxiedHttpClientAdaptor() {
+
         super();
+
         HttpProxyGetter proxyGetter = new HttpProxyGetter();
         List<HttpHost> proxies = proxyGetter.getFreeProxies();
 
@@ -36,8 +38,8 @@ public class ProxiedHttpClientAdaptor extends HttpClientAdaptor {
 
         DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
         this.httpclient = HttpClients.custom()
-                .setRoutePlanner(routePlanner)
-                .build();
+                                     .setRoutePlanner(routePlanner)
+                                     .build();
     }
 
 }
