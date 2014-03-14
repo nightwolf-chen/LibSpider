@@ -52,5 +52,7 @@ public class SingleUserCrawlResult implements DBPersitance{
             BookBorrowHistory borrowHistory = (BookBorrowHistory)obj;
             borrowHistory.saveToDB();
         }
+        
+        System.out.println("Singler User Result finished saving...");
     }
 }

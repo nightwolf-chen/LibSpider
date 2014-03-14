@@ -63,6 +63,8 @@ public class User implements DBPersitance{
             stmt=null;
             con.close();
             con=null;
+            
+            System.out.println(userid + " user data successfully saved...");
         } catch (SQLException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }

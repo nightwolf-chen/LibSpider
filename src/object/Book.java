@@ -123,10 +123,13 @@ public class Book implements DBPersitance{
                     "','"+publishTime+"','"+location+"','"+linkUrl+"','"+topic+"','"+publisher+
                     "','"+categoryCode+"','"+acquireCode+"','"+lang+"')";
             
-            System.out.println(sql);
             
             boolean isSuccess = OnlineDatabaseAccessor.insert(stmt, sql);
             
+            System.out.println(sql);
+            if(isSuccess){
+                 System.out.println("success...");
+            }
             
             stmt.close();
             stmt=null;

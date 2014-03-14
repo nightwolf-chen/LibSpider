@@ -75,6 +75,8 @@ public class BookBorrowHistory implements DBPersitance {
             if(bookid != null && user_int_id != null){
                 OnlineDatabaseAccessor.insert(stmt, "insert into lib_borrowlist(user_int_id,book_id) values("+user_int_id
                         +","+bookid+")"); 
+                
+                 System.out.println("Borrow history "+bookid +"-"+user_int_id +" successfully saved!");
             }
             
             rs.close();

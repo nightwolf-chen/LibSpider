@@ -37,10 +37,15 @@ public class PageParserUserInfo extends PageParser {
         Map<String, String> data = new HashMap<>();
         data.put(kUserid, this.userid);
 
+        System.out.println("Begin to crawl " +userid + "login page");
         PageParserLoginInfo loginParser = new PageParserLoginInfo(this.userid, this.httpClient);
+         
         Map<String, String> tmpData = loginParser.parserPageForData();
         if (tmpData == null) {
+             System.out.println("login page failed!");
             return null;
+        }else{
+             System.out.println("login page success...");
         }
         String urlStr = tmpData.get(PageParserLoginInfo.kUserPageUrl);
 
@@ -92,7 +97,7 @@ public class PageParserUserInfo extends PageParser {
                 data.put(kMajor, major);
             }
         }
-
+        
         return data;
     }
 

@@ -10,6 +10,7 @@ import com.mysql.jdbc.Statement;
 import concurrent.ConcurrencyManager;
 import db.ConnectionManager;
 import db.OnlineDatabaseAccessor;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,8 +36,10 @@ public class Spider implements Runnable {
     public SingleUserCrawlResult crawlDataForUser(String userid) {
 
         HttpClientAdaptor httpClient = new ProxiedHttpClientAdaptor();
+        
+        System.out.println("Begin to crawl " +userid + "userinfo");
         PageParserUserInfo userInfoPaser = new PageParserUserInfo(userid, httpClient);
-
+        System.out.println("Userinfo successfully crawled");
         Map<String, String> userInfo = userInfoPaser.parserPageForData();
 
         if (userInfo == null) {
@@ -54,12 +57,16 @@ public class Spider implements Runnable {
             System.out.println("userBorrowListUrl is null! userid =" + userid);
             return null;
         }
-
+        
+        System.out.println("Begin to crawl " +userid + "borrowlist");
         PageParserBorrowList borrowListPaser = new PageParserBorrowList(userBorrowListUrl, userid, httpClient);
         ArrayList<Object> list = borrowListPaser.parserPageForRepeatedData();
 
         if (list == null) {
+             System.out.println("Borrowlist crawl failed...");
             return null;
+        }else{
+             System.out.println("Borrowlist crawl success...");
         }
 
         for (Object obj : list) {
@@ -78,7 +85,14 @@ public class Spider implements Runnable {
             }
             System.out.println(borrowHistory.getaBook().getBookName());
         }
-
+        
+        //关闭网络连接释放资源
+        try {
+            httpClient.getHttpclient().close();
+        } catch (IOException ex) {
+            Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         return new SingleUserCrawlResult(user, list);
     }
 
@@ -103,19 +117,33 @@ public class Spider implements Runnable {
 
             int collegeStudentNum = 5000;
             String collegeCode = collegeCodes.get(collegeIndex);
-
+            int targetNum = 10;
             for (int studentCode = 0; studentCode < collegeStudentNum; studentCode++) {
 
+                if(targetNum <= 0){
+                    break;
+                }
+                
                 String useridStr = this.generateStudentid(Year, collegeCode, String.valueOf(studentCode));
 
+                System.out.println(useridStr +" to crawl...");
+                
                 if (this.userExists(useridStr)) {
+                    System.out.println(useridStr + " already in database abort to crawl...");
                     continue;
                 }
-
+                
+                System.out.println("Begin to crawl "+useridStr+" data...");
+                
                 SingleUserCrawlResult aUserResult = this.crawlDataForUser(useridStr);
+                
                 if (aUserResult != null) {
-                    ConcurrencyManager.dbOperationExecutor.execute(new DatabaseOperatorSave(aUserResult));
+//                    ConcurrencyManager.dbOperationExecutor.execute(new DatabaseOperatorSave(aUserResult));
+                    aUserResult.saveToDB();
+                    System.out.println(useridStr + " data successfully crawled. Begin to save.");
+                    targetNum--;
                 }
+                
                 count++;
             }
         }
@@ -139,6 +167,7 @@ public class Spider implements Runnable {
     private boolean userExists(String userid) {
 
         try {
+            
             ConnectionManager conMgr = new ConnectionManager();
             Connection con = conMgr.getConnection();
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
