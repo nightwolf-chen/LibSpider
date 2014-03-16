@@ -26,6 +26,8 @@ public class Testor {
     public static void main(String[] args) {
         // TODO code application logic here
  
-            new Spider().crawlDataForUser("20101003714");
+//            new Spider().crawlDataForUser("20101003714");
+        
+        new HttpProxyGetter().getAvailableProxies();
     }
 }

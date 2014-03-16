@@ -3,8 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/paser/PageParserBorrowList.java</file>
+            <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/network/ProxiedHttpClientAdaptor.java</file>
+            <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/libspider/Spider.java</file>
+            <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/network/HttpProxyGetter.java</file>
             <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/libspider/LibSpider.java</file>
+            <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/libspider/Testor.java</file>
             <file>file:/Users/bruce/NetBeansProjects/LibSpider/src/network/HttpClientAdaptor.java</file>
         </group>
     </open-files>

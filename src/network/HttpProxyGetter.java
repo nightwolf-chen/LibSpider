@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package network;
 
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.Statement;
+import db.ConnectionManager;
+import db.OnlineDatabaseAccessor;
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -29,29 +35,86 @@ import org.json.JSONException;
  * @author bruce
  */
 public class HttpProxyGetter {
-    public List<HttpHost> getFreeProxies(){
-        
-        List<HttpHost> proxies = new ArrayList<>();
-        
+
+    public List<HttpHost> getAvailableProxies() {
         try {
-            HttpClientAdaptor httpClientAdaptor = new HttpClientAdaptor();
-            String jsonContent = httpClientAdaptor.doGet("http://letushide.com/export/json/http,all,cn/");
             
-            JSONArray jsonArray = new JSONArray(jsonContent);
-            
-            for(int i = 0 ; i < jsonArray.length() ;i++){
-                String host = jsonArray.getJSONObject(i).getString("host");
-                int port = jsonArray.getJSONObject(i).getInt("port");
-                proxies.add(new HttpHost(host, port));
-                //System.out.println(host+":"+port);
+            this.checkProxyUpdate();
+            List<HttpHost> proxies = new ArrayList<>();
+
+            Connection dbCon = new ConnectionManager().getConnection();
+            Statement stmt = OnlineDatabaseAccessor.createStatement(dbCon);
+            ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies");
+
+            while (rs.next()) {
+                String host = rs.getString("host");
+                String port = rs.getString("port");
+                proxies.add(new HttpHost(host, Integer.valueOf(port)));
             }
-            
-            //System.out.println(jsonContent);
-            
+
+            rs.close();
+            stmt.close();
+            dbCon.close();
+            rs = null;
+            stmt = null;
+            dbCon = null;
+
             return proxies;
-        } catch (JSONException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(HttpProxyGetter.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    private void checkProxyUpdate() {
+
+        if (!this.shouldCheckUpdate()) {
+            return;
+        }
+
+        try {
+
+            String currentTimeStr = "";
+            Connection con = new ConnectionManager().getConnection();
+            Statement stmt = OnlineDatabaseAccessor.createStatement(con);
+            HttpClientAdaptor httpClientAdaptor = new HttpClientAdaptor();
+            
+            String jsonContent = httpClientAdaptor.doGet("http://letushide.com/export/json/http,all,cn/");
+            JSONArray jsonArray = new JSONArray(jsonContent);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                
+                String host = jsonArray.getJSONObject(i).getString("host");
+                int port = jsonArray.getJSONObject(i).getInt("port");
+                String portStr = String.valueOf(port);
+               
+                ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies where host='"+host+"' and port='"+portStr+"'");
+                if(rs.next()){
+                    OnlineDatabaseAccessor.update(stmt, "update proxies updatetime='"+currentTimeStr+"' where host='"+host+"' and port ='"+portStr+"'");
+                }else{
+                    OnlineDatabaseAccessor.insert(stmt, "insert into proxies(host,port,updatetime) values('"+host+"','"+portStr+"','"+currentTimeStr+"')");
+                }
+                rs.close();
+            }
+            
+            stmt.close();
+            con.close();
+            stmt = null;
+            con = null;
+
+            try {
+                httpClientAdaptor.getHttpclient().close();
+            } catch (IOException ex) {
+                Logger.getLogger(HttpProxyGetter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } catch (JSONException | SQLException ex) {
+            Logger.getLogger(HttpProxyGetter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    private boolean shouldCheckUpdate() {
+        return true;
     }
 }

@@ -33,7 +33,8 @@ public class HttpClientAdaptor {
     
     protected  CloseableHttpClient httpclient = HttpClients.createDefault();
     private final HttpClientContext localContext = HttpClientContext.create();
-   
+    private final int  timeout = 3000;
+    
     public HttpClientAdaptor() {
         CookieStore cookieStore = new BasicCookieStore();
         localContext.setCookieStore(cookieStore);
@@ -43,7 +44,7 @@ public class HttpClientAdaptor {
         
         try {
             HttpGet httpGet = new HttpGet(url);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(3000).setConnectTimeout(3000).build();//设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).build();//设置请求和传输超时时间
             httpGet.setConfig(requestConfig);
             
             CloseableHttpResponse response = this.httpclient.execute(httpGet,localContext);
@@ -72,7 +73,7 @@ public class HttpClientAdaptor {
         try {
 
             HttpPost httpPost = new HttpPost(url);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(3000).setConnectTimeout(3000).build();//设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).build();//设置请求和传输超时时间
             httpPost.setConfig(requestConfig);
             httpPost.setEntity(new UrlEncodedFormEntity(parameters));
             CloseableHttpResponse response = this.httpclient.execute(httpPost, localContext);

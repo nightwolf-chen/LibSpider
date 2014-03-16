@@ -26,15 +26,9 @@ import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
  */
 public class ProxiedHttpClientAdaptor extends HttpClientAdaptor {
 
-    public ProxiedHttpClientAdaptor() {
+    public ProxiedHttpClientAdaptor(HttpHost proxy) {
 
         super();
-
-        HttpProxyGetter proxyGetter = new HttpProxyGetter();
-        List<HttpHost> proxies = proxyGetter.getFreeProxies();
-
-        int randomIndex = (int) ((Math.random() * 1000) % proxies.size());
-        HttpHost proxy = proxies.get(randomIndex);
 
         DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
         this.httpclient = HttpClients.custom()

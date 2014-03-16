@@ -19,10 +19,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import network.HttpClientAdaptor;
+import network.HttpProxyGetter;
 import network.ProxiedHttpClientAdaptor;
 import object.Book;
 import object.BookBorrowHistory;
 import object.User;
+import org.apache.http.HttpHost;
 import paser.PageParserBookDetail;
 import paser.PageParserBorrowList;
 import paser.PageParserUserInfo;
@@ -35,7 +37,13 @@ public class Spider implements Runnable {
 
     public SingleUserCrawlResult crawlDataForUser(String userid) {
 
-        HttpClientAdaptor httpClient = new ProxiedHttpClientAdaptor();
+        HttpProxyGetter proxyGetter = new HttpProxyGetter();
+        List<HttpHost> proxies = proxyGetter.getAvailableProxies();
+
+        int randomIndex = (int) ((Math.random() * 1000) % proxies.size());
+        HttpHost proxy = proxies.get(randomIndex);
+        
+        HttpClientAdaptor httpClient = new ProxiedHttpClientAdaptor(proxy);
         
         System.out.println("Begin to crawl " +userid + "userinfo");
         PageParserUserInfo userInfoPaser = new PageParserUserInfo(userid, httpClient);
