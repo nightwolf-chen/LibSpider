@@ -217,9 +217,10 @@ public class Spider implements Runnable {
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
             String sql = "select * from college_stu_count where collegecode = '" + collegeCode + "'";
             ResultSet rs = stmt.executeQuery(sql);
-
+            
+            int count = 0;
             if (rs.next()) {
-                int count = rs.getInt("studentcount");
+                count = rs.getInt("studentcount");
             } else {
                 OnlineDatabaseAccessor.insert(stmt, "insert into college_stu_count values('"+collegeCode+"',0)");
             }
@@ -230,6 +231,8 @@ public class Spider implements Runnable {
             rs = null;
             stmt = null;
             con = null;
+            
+            return count;
         } catch (SQLException ex) {
             Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
         }
