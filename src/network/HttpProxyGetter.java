@@ -29,22 +29,25 @@ import java.util.logging.Logger;
 import org.apache.http.HttpHost;
 import org.json.JSONArray;
 import org.json.JSONException;
+import util.TimeTool;
 
 /**
  *
  * @author bruce
  */
 public class HttpProxyGetter {
-
+    
+    private final int UpdateTimeGap = 1000 * 60 * 30;
+    
     public List<HttpHost> getAvailableProxies() {
         try {
-            
+
             this.checkProxyUpdate();
             List<HttpHost> proxies = new ArrayList<>();
 
             Connection dbCon = new ConnectionManager().getConnection();
             Statement stmt = OnlineDatabaseAccessor.createStatement(dbCon);
-            ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies");
+            ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies order by updatetime desc");
 
             while (rs.next()) {
                 String host = rs.getString("host");
@@ -72,31 +75,35 @@ public class HttpProxyGetter {
             return;
         }
 
+        System.out.println("Update proxy list...");
+        
         try {
 
-            String currentTimeStr = "";
+            String currentTimeStr = new TimeTool().getCurrentTime();
             Connection con = new ConnectionManager().getConnection();
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
             HttpClientAdaptor httpClientAdaptor = new HttpClientAdaptor();
-            
+
             String jsonContent = httpClientAdaptor.doGet("http://letushide.com/export/json/http,all,cn/");
             JSONArray jsonArray = new JSONArray(jsonContent);
 
             for (int i = 0; i < jsonArray.length(); i++) {
-                
+
                 String host = jsonArray.getJSONObject(i).getString("host");
                 int port = jsonArray.getJSONObject(i).getInt("port");
                 String portStr = String.valueOf(port);
-               
-                ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies where host='"+host+"' and port='"+portStr+"'");
-                if(rs.next()){
-                    OnlineDatabaseAccessor.update(stmt, "update proxies updatetime='"+currentTimeStr+"' where host='"+host+"' and port ='"+portStr+"'");
-                }else{
-                    OnlineDatabaseAccessor.insert(stmt, "insert into proxies(host,port,updatetime) values('"+host+"','"+portStr+"','"+currentTimeStr+"')");
+
+                ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies where host='" + host + "' and port='" + portStr + "'");
+                if (rs.next()) {
+                    OnlineDatabaseAccessor.update(stmt, "update proxies set updatetime='" + currentTimeStr + "' where host='" + host + "' and port ='" + portStr + "'");
+                } else {
+                    OnlineDatabaseAccessor.insert(stmt, "insert into proxies(host,port,updatetime) values('" + host + "','" + portStr + "','" + currentTimeStr + "')");
                 }
                 rs.close();
             }
-            
+
+            OnlineDatabaseAccessor.delete(stmt, "delete from proxies where updatetime<'" + currentTimeStr + "'");
+
             stmt.close();
             con.close();
             stmt = null;
@@ -115,6 +122,27 @@ public class HttpProxyGetter {
     }
 
     private boolean shouldCheckUpdate() {
+
+        try {
+            
+            Connection dbCon = new ConnectionManager().getConnection();
+            Statement stmt = OnlineDatabaseAccessor.createStatement(dbCon);
+            ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies order by updatetime");
+
+            if (rs.next()) {
+                TimeTool tTool = new TimeTool();
+                String lastUpdateTime = rs.getString("updatetime");
+                String currentTime = tTool.getCurrentTime();
+                long timeGap = tTool.calculateDiscance(lastUpdateTime, currentTime);
+                if(timeGap >= 0 && timeGap < this.UpdateTimeGap){
+                    return false;
+                }
+            }
+            return true;
+        } catch (SQLException ex) {
+            Logger.getLogger(HttpProxyGetter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         return true;
     }
 }

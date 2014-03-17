@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package util;
 
 import java.text.ParseException;
@@ -28,41 +27,38 @@ import java.util.logging.Logger;
  * @author bruce
  */
 public class TimeTool {
-    
-    private final SimpleDateFormat timeFormate ;
-    
-    public TimeTool(){
-        this.timeFormate =  new SimpleDateFormat("HH:mm:ss");
+
+    private final SimpleDateFormat timeFormate;
+
+    public TimeTool() {
+        this.timeFormate = new SimpleDateFormat("HH:mm:ss");
     }
-    
-    public String getCurrentTime(){
+
+    public String getCurrentTime() {
         Calendar cal = Calendar.getInstance();
-    	cal.getTime();
-    	return this.timeFormate.format(cal.getTime());
+        cal.getTime();
+        return this.timeFormate.format(cal.getTime());
     }
-    
-    public long calculateDiscance(String startTime,String endTime){
-        
+
+    public long calculateDiscance(String startTime, String endTime) {
+
         try {
-            
+
             Date startDate = this.timeFormate.parse(startTime);
             Date endDate = this.timeFormate.parse(endTime);
             long dist = endDate.getTime() - startDate.getTime();
-            if(dist < 0){
-                return -1;
-            }else{
-                return dist;
-            }
-            
+           
+            return dist<0?-1:dist;
+
         } catch (ParseException ex) {
             Logger.getLogger(TimeTool.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return -2;
     }
 
     public SimpleDateFormat getTimeFormate() {
         return timeFormate;
     }
-    
+
 }

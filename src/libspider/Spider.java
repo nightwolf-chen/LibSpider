@@ -7,7 +7,6 @@ package libspider;
 
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
-import concurrent.ConcurrencyManager;
 import db.ConnectionManager;
 import db.OnlineDatabaseAccessor;
 import java.io.IOException;
@@ -42,10 +41,10 @@ public class Spider implements Runnable {
 
         int randomIndex = (int) ((Math.random() * 1000) % proxies.size());
         HttpHost proxy = proxies.get(randomIndex);
-        
+
         HttpClientAdaptor httpClient = new ProxiedHttpClientAdaptor(proxy);
-        
-        System.out.println("Begin to crawl " +userid + "userinfo");
+
+        System.out.println("Begin to crawl " + userid + "userinfo");
         PageParserUserInfo userInfoPaser = new PageParserUserInfo(userid, httpClient);
         System.out.println("Userinfo successfully crawled");
         Map<String, String> userInfo = userInfoPaser.parserPageForData();
@@ -65,16 +64,16 @@ public class Spider implements Runnable {
             System.out.println("userBorrowListUrl is null! userid =" + userid);
             return null;
         }
-        
-        System.out.println("Begin to crawl " +userid + "borrowlist");
+
+        System.out.println("Begin to crawl " + userid + "borrowlist");
         PageParserBorrowList borrowListPaser = new PageParserBorrowList(userBorrowListUrl, userid, httpClient);
         ArrayList<Object> list = borrowListPaser.parserPageForRepeatedData();
 
         if (list == null) {
-             System.out.println("Borrowlist crawl failed...");
+            System.out.println("Borrowlist crawl failed...");
             return null;
-        }else{
-             System.out.println("Borrowlist crawl success...");
+        } else {
+            System.out.println("Borrowlist crawl success...");
         }
 
         for (Object obj : list) {
@@ -93,14 +92,14 @@ public class Spider implements Runnable {
             }
             System.out.println(borrowHistory.getaBook().getBookName());
         }
-        
+
         //关闭网络连接释放资源
         try {
             httpClient.getHttpclient().close();
         } catch (IOException ex) {
             Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return new SingleUserCrawlResult(user, list);
     }
 
@@ -110,6 +109,8 @@ public class Spider implements Runnable {
         final int collegeNum = 15;
         List<String> collegeCodes = new ArrayList<>();
         int[] collegeStudentNums = {1616, 1350, 1719, 3000, 800, 1026, 1165, 1400, 400, 1700, 880, 240, 850, 140, 150};
+
+        //生成学院代码
         for (int i = 1; i <= 15; i++) {
             String code = null;
             if (i < 10) {
@@ -120,45 +121,53 @@ public class Spider implements Runnable {
             collegeCodes.add(code);
         }
 
-        int count = 0;
+        ConnectionManager conMgr = new ConnectionManager();
+        Connection con = conMgr.getConnection();
+        Statement stmt = OnlineDatabaseAccessor.createStatement(con);
+
         for (int collegeIndex = 0; collegeIndex < collegeNum; collegeIndex++) {
 
             int collegeStudentNum = 5000;
             String collegeCode = collegeCodes.get(collegeIndex);
-            int targetNum = 10;
+
+            int alreadyCrawCount = this.getUserCountAlreadyCrawled(collegeCode);
+            final int numToCraw = 10;
+            int targetNum = numToCraw - alreadyCrawCount;
+            int tCount = 0;
+
             for (int studentCode = 0; studentCode < collegeStudentNum; studentCode++) {
 
-                if(targetNum <= 0){
+                if (targetNum <= 0) {
                     break;
                 }
-                
+
                 String useridStr = this.generateStudentid(Year, collegeCode, String.valueOf(studentCode));
 
-                System.out.println(useridStr +" to crawl...");
-                
+                System.out.println(useridStr + " to crawl...");
+
                 if (this.userExists(useridStr)) {
                     System.out.println(useridStr + " already in database abort to crawl...");
                     continue;
                 }
-                
-                System.out.println("Begin to crawl "+useridStr+" data...");
-                
+
+                System.out.println("Begin to crawl " + useridStr + " data...");
+
                 SingleUserCrawlResult aUserResult = this.crawlDataForUser(useridStr);
-                
+
                 if (aUserResult != null) {
 //                    ConcurrencyManager.dbOperationExecutor.execute(new DatabaseOperatorSave(aUserResult));
                     aUserResult.saveToDB();
                     System.out.println(useridStr + " data successfully crawled. Begin to save.");
                     targetNum--;
+                    tCount++;
+                    OnlineDatabaseAccessor.update(stmt, "update college_stu_count set studentcount="+String.valueOf(alreadyCrawCount+tCount)
+                            +" where collegecode='"+collegeCode+"'");
                 }
-                
-                count++;
+
             }
         }
 
-        System.out.println("count:" + count);
-
-}
+    }
 
     private String generateStudentid(String year, String collegeCode, String studentCode) {
 
@@ -175,7 +184,7 @@ public class Spider implements Runnable {
     private boolean userExists(String userid) {
 
         try {
-            
+
             ConnectionManager conMgr = new ConnectionManager();
             Connection con = conMgr.getConnection();
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
@@ -199,6 +208,33 @@ public class Spider implements Runnable {
         }
         return false;
 
+    }
+
+    private int getUserCountAlreadyCrawled(String collegeCode) {
+        try {
+            ConnectionManager conMgr = new ConnectionManager();
+            Connection con = conMgr.getConnection();
+            Statement stmt = OnlineDatabaseAccessor.createStatement(con);
+            String sql = "select * from college_stu_count where collegecode = '" + collegeCode + "'";
+            ResultSet rs = stmt.executeQuery(sql);
+
+            if (rs.next()) {
+                int count = rs.getInt("studentcount");
+            } else {
+                OnlineDatabaseAccessor.insert(stmt, "insert into college_stu_count values('"+collegeCode+"',0)");
+            }
+
+            rs.close();
+            stmt.close();
+            con.close();
+            rs = null;
+            stmt = null;
+            con = null;
+        } catch (SQLException ex) {
+            Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return 0;
     }
 
     @Override
