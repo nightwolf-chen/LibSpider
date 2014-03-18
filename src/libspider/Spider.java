@@ -115,7 +115,7 @@ public class Spider implements Runnable {
         ConnectionManager conMgr = new ConnectionManager();
         Connection con = conMgr.getConnection();
         Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-        boolean isRandomStudentCode = true;
+       
 
         for (int collegeIndex = 0; collegeIndex < collegeNum; collegeIndex++) {
 
@@ -126,6 +126,7 @@ public class Spider implements Runnable {
             int targetNum = numToCraw - alreadyCrawCount;
             int tCount = 0;
             int studentCode = 0;
+            boolean isRandomStudentCode = true;
 
             while (targetNum > 0) {
 
