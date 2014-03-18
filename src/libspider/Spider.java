@@ -9,6 +9,12 @@ import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.OnlineDatabaseAccessor;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,6 +40,7 @@ import paser.PageParserUserInfo;
  */
 public class Spider implements Runnable {
 
+    private final String studentNumFilePath = "student.num";
     public SingleUserCrawlResult crawlDataForUser(String userid) {
 
         HttpProxyGetter proxyGetter = new HttpProxyGetter();
@@ -124,7 +131,7 @@ public class Spider implements Runnable {
         ConnectionManager conMgr = new ConnectionManager();
         Connection con = conMgr.getConnection();
         Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-
+        boolean firstStudentCode = true;
         for (int collegeIndex = 0; collegeIndex < collegeNum; collegeIndex++) {
 
             int collegeStudentNum = 5000;
@@ -135,11 +142,14 @@ public class Spider implements Runnable {
             int targetNum = numToCraw - alreadyCrawCount;
             int tCount = 0;
 
-            for (int studentCode = 0; studentCode < collegeStudentNum; studentCode++) {
-
-                if (targetNum <= 0) {
-                    break;
-                }
+//            for (int studentCode = 0; studentCode < collegeStudentNum && targetNum > 0; studentCode++) {
+            while(targetNum > 0){
+                int studentCode = (int) (Math.random()*9999);
+//                if(firstStudentCode){
+//                    studentCode = this.getLastCrawedStudentCode();
+//                    firstStudentCode = false;
+//                }
+                
 
                 String useridStr = this.generateStudentid(Year, collegeCode, String.valueOf(studentCode));
 
@@ -163,7 +173,8 @@ public class Spider implements Runnable {
                     OnlineDatabaseAccessor.update(stmt, "update college_stu_count set studentcount="+String.valueOf(alreadyCrawCount+tCount)
                             +" where collegecode='"+collegeCode+"'");
                 }
-
+                
+                this.saveCurrentStudentCode(studentCode);
             }
         }
 
@@ -240,6 +251,51 @@ public class Spider implements Runnable {
         return 0;
     }
 
+    public boolean saveCurrentStudentCode(int studentCode){
+        
+        File file = new File(this.studentNumFilePath);
+        
+        if(!file.exists()){
+            
+            try {
+                file.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        }
+        try {
+            
+            DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
+            dos.writeInt(studentCode);
+            
+            dos.close();
+           
+            return true;
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return false;
+    }
+    
+    private int getLastCrawedStudentCode(){
+        
+        File file = new File(this.studentNumFilePath);
+        try {
+            DataInputStream dis = new DataInputStream(new FileInputStream(file));
+            return dis.readInt();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return 0;
+    }
+    
     @Override
     public void run() {
         crawlForAllPossibleUserAndSaveToDB();

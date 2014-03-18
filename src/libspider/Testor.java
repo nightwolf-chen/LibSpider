@@ -28,6 +28,7 @@ public class Testor {
  
 //            new Spider().crawlDataForUser("20101003714");
         
-        new HttpProxyGetter().getAvailableProxies();
+//        new HttpProxyGetter().getAvailableProxies();
+//       new Spider().saveCurrentStudentCode(125);
     }
 }
