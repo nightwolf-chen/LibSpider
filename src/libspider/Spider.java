@@ -129,10 +129,13 @@ public class Spider implements Runnable {
         ConnectionManager conMgr = new ConnectionManager();
         Connection con = conMgr.getConnection();
         Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-        boolean firstStudentCode = true;
+       
+        boolean isRandomStudentCode = true;
+        
         for (int collegeIndex = 0; collegeIndex < collegeNum; collegeIndex++) {
 
-            int collegeStudentNum = 5000;
+            final int collegeStudentNum = 9999;
+            
             String collegeCode = collegeCodes.get(collegeIndex);
 
             int alreadyCrawCount = this.getUserCountAlreadyCrawled(collegeCode);
@@ -140,14 +143,18 @@ public class Spider implements Runnable {
             int targetNum = numToCraw - alreadyCrawCount;
             int tCount = 0;
 
+            int studentCode = 0;
 //            for (int studentCode = 0; studentCode < collegeStudentNum && targetNum > 0; studentCode++) {
             while(targetNum > 0){
-                int studentCode = (int) (Math.random()*9999);
-//                if(firstStudentCode){
-//                    studentCode = this.getLastCrawedStudentCode();
-//                    firstStudentCode = false;
-//                }
+               
                 
+                if(isRandomStudentCode){
+                    studentCode = (int) (Math.random()*9999);
+                }else{
+                    if(++studentCode > collegeStudentNum){
+                        break;
+                    }
+                }           
 
                 String useridStr = this.generateStudentid(Year, collegeCode, String.valueOf(studentCode));
 
@@ -170,6 +177,9 @@ public class Spider implements Runnable {
                     tCount++;
                     OnlineDatabaseAccessor.update(stmt, "update college_stu_count set studentcount="+String.valueOf(alreadyCrawCount+tCount)
                             +" where collegecode='"+collegeCode+"'");
+                    
+                    isRandomStudentCode = false;
+                    studentCode -= numToCraw;
                 }
                 
                 this.saveCurrentStudentCode(studentCode);
