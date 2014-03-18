@@ -44,10 +44,8 @@ public class Spider implements Runnable {
     public SingleUserCrawlResult crawlDataForUser(String userid) {
 
         HttpProxyGetter proxyGetter = new HttpProxyGetter();
-        List<HttpHost> proxies = proxyGetter.getAvailableProxies();
-
-        int randomIndex = (int) ((Math.random() * 1000) % proxies.size());
-        HttpHost proxy = proxies.get(randomIndex);
+       
+        HttpHost proxy = proxyGetter.getARandomProxy();
 
         HttpClientAdaptor httpClient = new ProxiedHttpClientAdaptor(proxy);
 

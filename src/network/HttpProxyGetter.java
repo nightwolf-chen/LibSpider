@@ -39,6 +39,14 @@ public class HttpProxyGetter {
     
     private final int UpdateTimeGap = 1000 * 60 * 5;
     
+    public HttpHost getARandomProxy(){
+        
+        List<HttpHost> proxies = this.getAvailableProxies();
+
+        int randomIndex = (int) ((Math.random() * 1000) % proxies.size());
+        return proxies.get(randomIndex);
+    
+    }
     public List<HttpHost> getAvailableProxies() {
         try {
 
