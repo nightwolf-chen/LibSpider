@@ -130,8 +130,12 @@ public class Spider implements Runnable {
 
             while (targetNum > 0) {
 
+                /*这里的代码意思是没有找到合法的学号的时候使用随机搜索的方案
+                  找到第一个可用的学号以后可以判断其它学号应该在它的附近所以
+                  改用在它的附近进行线性搜素。
+                */
                 if (isRandomStudentCode) {
-                    studentCode = (int) (Math.random() * 9999);
+                    studentCode = (int) (Math.random() * collegeStudentNum);
                 } else {
                     if (++studentCode > collegeStudentNum) {
                         break;
