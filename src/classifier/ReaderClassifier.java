@@ -86,9 +86,34 @@ public class ReaderClassifier implements Serializable {
      人文科学：（A,马克思主义、列宁主义、毛泽东思想、邓小平理论）（B,哲学、宗教）（H,语言、文字）（I,文学）（J,艺术）（K,历史、地理）
      社会科学：（C,社会科学总论）（D,政治、法律）（E,军事）（F,经济）（G,文化、科学、教育、体育）
      自然科学：（N,自然科学总论）（O,数理科学和化学）（P,天文学、地球科学）（Q,生物科学）
-     科学技术：（R,医药、卫生）（S,农业科学）（,工业技术）（U,交通运输）（V,航空、航天）（X,环境科学、安全科学）
+     科学技术：（R,医药、卫生）（S,农业科学）（T,工业技术）（U,交通运输）（V,航空、航天）（X,环境科学、安全科学）
      其他：
      */
+
+    public static String transferCategorycodeToClass(String categorycode) {
+        String[] categoryClasses = {classHumanScience, classSocialScience, classNatureScience, classScienceTech, classOther};
+        String[] tokens = {"ABHIJK", "CDEFG", "NOPQ", "RSTUVX"};
+
+        int classIndex = 4;
+
+        char startChar = categorycode.charAt(0);
+
+        for (int i = 0; i < tokens.length; i++) {
+            String tmpStr = tokens[i];
+            boolean found = false;
+            for (int j = 0; j < tmpStr.length(); j++) {
+                if (startChar == tmpStr.charAt(j) || startChar == (tmpStr.charAt(j) + 32)) {
+                    found = true;
+                    classIndex = i;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+
+        return categoryClasses[classIndex];
+    }
 
     /**
      * Constructs empty training dataset.
@@ -141,7 +166,6 @@ public class ReaderClassifier implements Serializable {
      * Classifies a given message.
      *
      * @param readerItem
-     * @param message	the message content
      * @throws Exception if classification fails
      */
     public void classifyReader(BorrowListItem readerItem) throws Exception {
@@ -227,9 +251,10 @@ public class ReaderClassifier implements Serializable {
         return instance;
     }
 
-    public void trainnning(){
-        
+    public void trainnning() {
+
     }
+
     /**
      * Main method. The following parameters are recognized:
      * <ul>
@@ -254,7 +279,7 @@ public class ReaderClassifier implements Serializable {
      */
     public static void main(String[] args) {
         try {
-           
+
             // Check if class value is given.
             String classValue = Utils.getOption('c', args);
 
@@ -270,14 +295,12 @@ public class ReaderClassifier implements Serializable {
                 classifier = new ReaderClassifier();
             }
 
-         
             // Process message.
-            if (classValue.length() != 0) {
-                classifier.updateData(message.toString(), classValue);
-            } else {
-                classifier.classifyMessage(message.toString());
-            }
-
+//            if (classValue.length() != 0) {
+//                classifier.updateData(null, classValue);
+//            } else {
+//                classifier.classifyMessage(null.toString());
+//            }
             // Save message classifier object only if it was updated.
             if (classValue.length() != 0) {
                 SerializationHelper.write(modelName, classifier);

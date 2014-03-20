@@ -20,12 +20,76 @@ package classifier;
  * @author bruce
  */
 public class BorrowListItem {
-    String userid;
-    String username;
-    String major;
-    String college;
-    String bookname;
-    String author;
-    String topic;
-    String lang;
+
+    public String userid;
+    public String username;
+    public String major;
+    public String college;
+    public String bookname;
+    public String author;
+    public String topic;
+    public String lang;
+
+    public boolean isValid() {
+
+        if (userid == null) {
+            return false;
+        }
+        if (username == null) {
+            return false;
+        }
+        if (major == null) {
+            return false;
+        }
+        if (college == null) {
+            return false;
+        }
+        if (bookname == null) {
+            return false;
+        }
+        if (author == null) {
+            return false;
+        }
+        if (topic == null) {
+            return false;
+        }
+        if (lang == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
+    }
+
+    public void setBookname(String bookname) {
+        this.bookname = bookname;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
+    }
+
 }

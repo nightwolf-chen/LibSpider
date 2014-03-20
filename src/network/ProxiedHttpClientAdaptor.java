@@ -15,7 +15,6 @@
  */
 package network;
 
-import java.util.List;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
@@ -29,7 +28,6 @@ public class ProxiedHttpClientAdaptor extends HttpClientAdaptor {
     public ProxiedHttpClientAdaptor(HttpHost proxy) {
 
         super();
-
         DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
         this.httpclient = HttpClients.custom()
                                      .setRoutePlanner(routePlanner)

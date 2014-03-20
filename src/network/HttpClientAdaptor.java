@@ -30,65 +30,62 @@ import org.apache.http.impl.client.HttpClients;
  */
 public class HttpClientAdaptor {
 
-    
-    protected  CloseableHttpClient httpclient = HttpClients.createDefault();
+    protected CloseableHttpClient httpclient = HttpClients.createDefault();
     private final HttpClientContext localContext = HttpClientContext.create();
-    private final int  timeout = 3000;
-    
+    private final int timeout = 3000;
+    private final String encode = "utf8";
+
     public HttpClientAdaptor() {
         CookieStore cookieStore = new BasicCookieStore();
         localContext.setCookieStore(cookieStore);
     }
 
     public String doGet(String url) {
-        
+
         try {
             HttpGet httpGet = new HttpGet(url);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).build();//设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).build();//璁剧疆璇锋����杈���舵���            
             httpGet.setConfig(requestConfig);
-            
-            CloseableHttpResponse response = this.httpclient.execute(httpGet,localContext);
-            
-            BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-            
+            CloseableHttpResponse response = this.httpclient.execute(httpGet, localContext);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), this.encode));
             String htmlStr = "";
             String line = null;
             while ((line = br.readLine()) != null) {
                 htmlStr += (line + "\n");
             }
-            
+
             httpGet.releaseConnection();
             httpGet.completed();
-            
+
             return htmlStr;
         } catch (IOException ex) {
             Logger.getLogger(HttpClientAdaptor.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return null;
     }
 
     public String doPost(String url, List<NameValuePair> parameters) {
 
         try {
-
             HttpPost httpPost = new HttpPost(url);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).build();//设置请求和传输超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).build();//璁剧疆璇锋����杈���舵���            
             httpPost.setConfig(requestConfig);
             httpPost.setEntity(new UrlEncodedFormEntity(parameters));
             CloseableHttpResponse response = this.httpclient.execute(httpPost, localContext);
-            
-            BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), this.encode));
 
             String htmlStr = "";
             String line = null;
             while ((line = br.readLine()) != null) {
                 htmlStr += (line + "\n");
             }
-            
+
             httpPost.completed();
             httpPost.releaseConnection();
-            
+
             return htmlStr;
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(HttpClientAdaptor.class.getName()).log(Level.SEVERE, null, ex);
@@ -102,5 +99,5 @@ public class HttpClientAdaptor {
     public CloseableHttpClient getHttpclient() {
         return httpclient;
     }
-    
+
 }
