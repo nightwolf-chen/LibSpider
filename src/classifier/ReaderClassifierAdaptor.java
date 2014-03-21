@@ -21,7 +21,7 @@
  */
 package classifier;
 
-import weka.classifiers.Classifier;
+import java.io.BufferedWriter;
 import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -33,11 +33,15 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ReaderClassifier implements Serializable {
+public class ReaderClassifierAdaptor implements Serializable {
 
     /**
      * for serialization.
@@ -57,7 +61,7 @@ public class ReaderClassifier implements Serializable {
     /**
      * The actual classifier.
      */
-    private Classifier m_Classifier = new J48();
+    private J48 m_Classifier = new J48();
 
     /**
      * Whether the model is up to date.
@@ -118,7 +122,7 @@ public class ReaderClassifier implements Serializable {
     /**
      * Constructs empty training dataset.
      */
-    public ReaderClassifier() {
+    public ReaderClassifierAdaptor() {
 
         final String nameOfDataset = "LibReaderClassificationProblem";
 
@@ -126,22 +130,22 @@ public class ReaderClassifier implements Serializable {
         ArrayList<Attribute> attributes = new ArrayList<>(this.attributeCount);
 
         // Add attribute for holding messages.
-        attributes.add(new Attribute(this.userid));
-        attributes.add(new Attribute(this.username));
-        attributes.add(new Attribute(this.major));
-        attributes.add(new Attribute(this.college));
-        attributes.add(new Attribute(this.bookname));
-        attributes.add(new Attribute(this.author));
-        attributes.add(new Attribute(this.topic));
-        attributes.add(new Attribute(this.lang));
+        attributes.add(new Attribute(this.userid,(List<String>)null));
+        attributes.add(new Attribute(this.username,(List<String>)null));
+        attributes.add(new Attribute(this.major,(List<String>)null));
+        attributes.add(new Attribute(this.college,(List<String>)null));
+        attributes.add(new Attribute(this.bookname,(List<String>)null));
+        attributes.add(new Attribute(this.author,(List<String>)null));
+        attributes.add(new Attribute(this.topic,(List<String>)null));
+        attributes.add(new Attribute(this.lang,(List<String>)null));
 
         // Add class attribute.
-        ArrayList<String> classValues = new ArrayList<>(ReaderClassifier.classCount);
-        classValues.add(ReaderClassifier.classHumanScience);
-        classValues.add(ReaderClassifier.classNatureScience);
-        classValues.add(ReaderClassifier.classSocialScience);
-        classValues.add(ReaderClassifier.classScienceTech);
-        classValues.add(ReaderClassifier.classOther);
+        ArrayList<String> classValues = new ArrayList<>(ReaderClassifierAdaptor.classCount);
+        classValues.add(ReaderClassifierAdaptor.classHumanScience);
+        classValues.add(ReaderClassifierAdaptor.classNatureScience);
+        classValues.add(ReaderClassifierAdaptor.classSocialScience);
+        classValues.add(ReaderClassifierAdaptor.classScienceTech);
+        classValues.add(ReaderClassifierAdaptor.classOther);
         attributes.add(new Attribute("Class", classValues));
 
         // Create dataset with initial capacity of 100, and set index of class.
@@ -170,23 +174,7 @@ public class ReaderClassifier implements Serializable {
      */
     public void classifyReader(BorrowListItem readerItem) throws Exception {
         // Check whether classifier has been built.
-        if (m_Data.numInstances() == 0) {
-            throw new Exception("No classifier available.");
-        }
-
-        // Check whether classifier and filter are up to date.
-        if (!m_UpToDate) {
-            // Initialize filter and tell it about the input format.
-            m_Filter.setInputFormat(m_Data);
-
-            // Generate word counts from the training data.
-            Instances filteredData = Filter.useFilter(m_Data, m_Filter);
-
-            // Rebuild classifier.
-            m_Classifier.buildClassifier(filteredData);
-
-            m_UpToDate = true;
-        }
+        this.buildClassifier();
 
         // Make separate little test set so that message
         // does not get added to string attribute in m_Data.
@@ -207,6 +195,27 @@ public class ReaderClassifier implements Serializable {
                 + m_Data.classAttribute().value((int) predicted));
     }
 
+    public void buildClassifier() throws Exception {
+        // Check whether classifier has been built.
+        if (m_Data.numInstances() == 0) {
+            throw new Exception("No classifier available.");
+        }
+
+        // Check whether classifier and filter are up to date.
+        if (!m_UpToDate) {
+            // Initialize filter and tell it about the input format.
+            m_Filter.setInputFormat(m_Data);
+
+            // Generate word counts from the training data.
+            Instances filteredData = Filter.useFilter(m_Data, m_Filter);
+
+            // Rebuild classifier.
+            m_Classifier.buildClassifier(m_Data);
+
+            m_UpToDate = true;
+        }
+    }
+
     /**
      * Method that converts a text message into an instance.
      *
@@ -222,6 +231,7 @@ public class ReaderClassifier implements Serializable {
         Attribute attribute = null;
 
         attribute = data.attribute(this.userid);
+        
         instance.setValue(attribute, attribute.addStringValue(dataItem.userid));
 
         attribute = data.attribute(this.username);
@@ -251,8 +261,26 @@ public class ReaderClassifier implements Serializable {
         return instance;
     }
 
-    public void trainnning() {
+    public J48 getM_Classifier() {
+        return m_Classifier;
+    }
 
+    public void saveDataToArff(String filename) {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(filename));
+            writer.write(m_Data.toString());
+            writer.flush();
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ReaderClassifierAdaptor.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException ex) {
+                Logger.getLogger(ReaderClassifierAdaptor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     /**
@@ -288,11 +316,12 @@ public class ReaderClassifier implements Serializable {
             if (modelName.length() == 0) {
                 throw new Exception("Must provide name of model file ('-t <file>').");
             }
-            ReaderClassifier classifier;
+
+            ReaderClassifierAdaptor classifier;
             try {
-                classifier = (ReaderClassifier) SerializationHelper.read(modelName);
+                classifier = (ReaderClassifierAdaptor) SerializationHelper.read(modelName);
             } catch (FileNotFoundException e) {
-                classifier = new ReaderClassifier();
+                classifier = new ReaderClassifierAdaptor();
             }
 
             // Process message.

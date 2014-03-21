@@ -30,23 +30,27 @@ import java.util.logging.Logger;
  */
 public class DataSetItem implements DBPersitance{
     private BorrowListItem listitem ;
-    private String categoryClass;
+    private String classValue;
 
     public DataSetItem(BorrowListItem listitem) {
         this.listitem = listitem;
     }
 
-    public String getCategoryClass() {
-        return categoryClass;
+    public String getClassValue() {
+        return classValue;
     }
 
-    public void setCategoryClass(String categoryClass) {
-        this.categoryClass = categoryClass;
+    public void setClassValue(String classValue) {
+        this.classValue = classValue;
+    }
+
+    public BorrowListItem getListitem() {
+        return listitem;
     }
     
     public boolean isValid(){
     
-        if(categoryClass != null && this.listitem.isValid()){
+        if(classValue != null && this.listitem.isValid()){
             return true;
         }else{
             return false;
@@ -69,7 +73,7 @@ public class DataSetItem implements DBPersitance{
             pStmt.setString(6, this.listitem.author);
             pStmt.setString(7, this.listitem.topic);
             pStmt.setString(8, this.listitem.lang);
-            pStmt.setString(9, categoryClass);
+            pStmt.setString(9, classValue);
             pStmt.execute();
             
             System.out.println("Inserted:("+this.listitem.username+","+this.listitem.bookname+")");

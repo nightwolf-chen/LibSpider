@@ -108,8 +108,8 @@ public class DatabaseDataFomator {
         borrowlistItem.setUsername(aUser.getName());
        
         DataSetItem datasetItem = new DataSetItem(borrowlistItem);
-        String classValue = ReaderClassifier.transferCategorycodeToClass(aBook.getCategoryCode());
-        datasetItem.setCategoryClass(classValue);
+        String classValue = ReaderClassifierAdaptor.transferCategorycodeToClass(aBook.getCategoryCode());
+        datasetItem.setClassValue(classValue);
         
         return datasetItem;
     }
