@@ -54,7 +54,7 @@ public class DatabaseDataFomator {
             while (rsBorrowList.next()) {
                 int bookId = rsBorrowList.getInt("book_id");
                 Book aBook = this.getBookFromDB(bookId);
-                User aUser = new User(userid, major, college, major);
+                User aUser = new User(userid, username, college, major);
                 DataSetItem dataItem = this.generateDateSetItem(aUser, aBook);
                 if (dataItem.isValid()) {
                     dataItem.saveToDB();
@@ -97,6 +97,7 @@ public class DatabaseDataFomator {
     }
 
     public DataSetItem generateDateSetItem(User aUser, Book aBook) {
+        
         BorrowListItem borrowlistItem = new BorrowListItem();
         borrowlistItem.setUserid(aUser.getUserid());
         borrowlistItem.setAuthor(aBook.getAuthor());

@@ -22,7 +22,7 @@
 package classifier;
 
 import java.io.BufferedWriter;
-import weka.classifiers.trees.J48;
+import weka.classifiers.rules.ZeroR;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -61,7 +61,9 @@ public class ReaderClassifierAdaptor implements Serializable {
     /**
      * The actual classifier.
      */
-    private J48 m_Classifier = new J48();
+//    private J48 m_Classifier = new J48();
+    
+    private ZeroR m_Classifier = new ZeroR();
 
     /**
      * Whether the model is up to date.
@@ -172,7 +174,7 @@ public class ReaderClassifierAdaptor implements Serializable {
      * @param readerItem
      * @throws Exception if classification fails
      */
-    public void classifyReader(BorrowListItem readerItem) throws Exception {
+    public String classifyReader(BorrowListItem readerItem) throws Exception {
         // Check whether classifier has been built.
         this.buildClassifier();
 
@@ -190,9 +192,11 @@ public class ReaderClassifierAdaptor implements Serializable {
         // Get index of predicted class value.
         double predicted = m_Classifier.classifyInstance(filteredInstance);
 
-        // Output class value.
-        System.err.println("Reader classified as : "
-                + m_Data.classAttribute().value((int) predicted));
+//        // Output class value.
+//        System.err.println("Reader classified as : "
+//                + m_Data.classAttribute().value((int) predicted));
+        
+        return m_Data.classAttribute().value((int) predicted);
     }
 
     public void buildClassifier() throws Exception {
@@ -261,7 +265,7 @@ public class ReaderClassifierAdaptor implements Serializable {
         return instance;
     }
 
-    public J48 getM_Classifier() {
+    public ZeroR getM_Classifier() {
         return m_Classifier;
     }
 
@@ -269,6 +273,9 @@ public class ReaderClassifierAdaptor implements Serializable {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(filename));
+            
+            String originDataStr = m_Data.toString();
+            String utf8EncodedStr = new String(originDataStr.getBytes(),"utf8");
             writer.write(m_Data.toString());
             writer.flush();
             writer.close();
