@@ -49,16 +49,16 @@ public class ReaderClassifierAdaptorManager {
 
     }
 
-    public void trainClassifierWithDataSet(List<DataSetItem> dataset) {
+    public void trainClassifierWithDataSet(List<BookSource> dataset) {
 
-        for (DataSetItem dataItem : dataset) {
+        for (BookSource dataItem : dataset) {
 
             this.trainClassfierWithSingleData(dataItem);
         }
 
     }
 
-    public void trainClassfierWithSingleData(DataSetItem dataItem) {
+    public void trainClassfierWithSingleData(BookSource dataItem) {
 
         Book book = dataItem.getBook();
         String classValue = dataItem.getClassValue();
@@ -113,7 +113,7 @@ public class ReaderClassifierAdaptorManager {
 
             System.out.println(classVlaue);
 
-            DataSetItem dataItem = new DataSetItem(book);
+            BookSource dataItem = new BookSource(book);
             dataItem.setClassValue(classVlaue);
             manager.trainClassfierWithSingleData(dataItem);
 
@@ -158,6 +158,9 @@ public class ReaderClassifierAdaptorManager {
 
     public String classify(Book book) {
         try {
+            if (!this.isBuilt()) {
+                this.train();
+            }
             return this.classifierAdaptor.classifyReader(book);
         } catch (Exception ex) {
             Logger.getLogger(ReaderClassifierAdaptorManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -167,8 +170,11 @@ public class ReaderClassifierAdaptorManager {
 
     public static void main(String[] args) throws SQLException, Exception {
         ReaderClassifierAdaptorManager mgr = new ReaderClassifierAdaptorManager();
-        
-//        mgr.train();
+
+        if (!mgr.isBuilt()) {
+            mgr.train();
+        }
+
         mgr.testClassifier();
     }
 

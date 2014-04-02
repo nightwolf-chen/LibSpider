@@ -5,6 +5,7 @@
  */
 package libspider;
 
+import object.UserLibInfo;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
@@ -42,7 +43,7 @@ public class Spider implements Runnable {
 
     private final String studentNumFilePath = "student.num";
 
-    public SingleUserCrawlResult crawlDataForUser(String userid) {
+    public UserLibInfo crawlDataForUser(String userid) {
 
         HttpHost proxy = new HttpProxyGetter().getARandomProxy();
         HttpClientAdaptor httpClient = new ProxiedHttpClientAdaptor(proxy);
@@ -103,7 +104,7 @@ public class Spider implements Runnable {
             Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return new SingleUserCrawlResult(user, list);
+        return new UserLibInfo(user, list);
     }
 
     public void crawlForAllPossibleUserAndSaveToDB() {
@@ -149,7 +150,7 @@ public class Spider implements Runnable {
                     continue;
                 }
 
-                SingleUserCrawlResult aUserResult = this.crawlDataForUser(useridStr);
+                UserLibInfo aUserResult = this.crawlDataForUser(useridStr);
 
                 if (aUserResult != null) {
                     aUserResult.saveToDB();

@@ -11,7 +11,6 @@ import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.DBPersitance;
 import db.OnlineDatabaseAccessor;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +55,7 @@ public class User implements DBPersitance{
             ConnectionManager conMgr = new ConnectionManager();
             Connection con = conMgr.getConnection();
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-            boolean isSuccess = OnlineDatabaseAccessor.insert(stmt, "insert into lib_user(userid,name,college,major) "
+            boolean isSuccess = OnlineDatabaseAccessor.insert(stmt, "insert into users  "
                     + "values('"+userid+"','"+name+"','"+college+"','"+major+"')");
             
             stmt.close();

@@ -21,6 +21,7 @@ public class LibSpider {
 //        }
 //  
             new Spider().run();
+       
     }
 
 }

@@ -93,6 +93,11 @@ public class ReaderClassifierAdaptor implements Serializable {
      科学技术：（R,医药、卫生）（S,农业科学）（T,工业技术）（U,交通运输）（V,航空、航天）（X,环境科学、安全科学）
      其他：
      */
+    
+    public static String[] getClassValues(){
+         String[] categoryClasses = {classHumanScience, classSocialScience, classNatureScience, classScienceTech, classOther};
+         return categoryClasses;
+    }
 
     public static String transferCategorycodeToClass(String categorycode) {
         String[] categoryClasses = {classHumanScience, classSocialScience, classNatureScience, classScienceTech, classOther};
@@ -168,7 +173,7 @@ public class ReaderClassifierAdaptor implements Serializable {
     /**
      * Classifies a given message.
      *
-     * @param readerItem
+     * @param book
      * @throws Exception if classification fails
      */
     public String classifyReader(Book book) throws Exception {

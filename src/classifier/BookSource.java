@@ -29,11 +29,11 @@ import object.Book;
  *
  * @author bruce
  */
-public class DataSetItem{
+public class BookSource{
     private Book book ;
     private String classValue;
 
-    public DataSetItem(Book book) {
+    public BookSource(Book book) {
         this.book = book;
     }
 

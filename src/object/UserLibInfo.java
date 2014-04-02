@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libspider;
+package object;
 
 import db.DBPersitance;
 import java.util.List;
@@ -25,12 +25,12 @@ import object.User;
  *
  * @author bruce
  */
-public class SingleUserCrawlResult implements DBPersitance{
+public class UserLibInfo implements DBPersitance{
     
     private final User user;
     private final List<Object> borrowList;
 
-    public SingleUserCrawlResult(User user, List<Object> borrowList) {
+    public UserLibInfo(User user, List<Object> borrowList) {
         this.user = user;
         this.borrowList = borrowList;
     }

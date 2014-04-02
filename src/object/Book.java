@@ -36,6 +36,10 @@ public class Book implements DBPersitance{
         this.bookName = bookName;
         this.author = author;
     }
+    
+    public Book(){
+    
+    }
 
     
     public String getBookName() {
@@ -127,9 +131,9 @@ public class Book implements DBPersitance{
             ConnectionManager conMgr = new ConnectionManager();
             Connection con = conMgr.getConnection();
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-            String sql = "insert into lib_book(bookname,author,publishtime,location,linkurl,topic"
+            String sql = "insert into books(bookname,author,topic"
                     + ",publisher,categorycode,acquirecode,lang) values('"+bookName+"','"+author+
-                    "','"+publishTime+"','"+location+"','"+linkUrl+"','"+topic+"','"+publisher+
+                    "','"+topic+"','"+publisher+
                     "','"+categoryCode+"','"+acquireCode+"','"+lang+"')";
             
             

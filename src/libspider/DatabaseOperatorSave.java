@@ -16,14 +16,16 @@
 
 package libspider;
 
+import object.UserLibInfo;
+
 /**
  *
  * @author bruce
  */
 public class DatabaseOperatorSave implements Runnable{
 
-    private final SingleUserCrawlResult aResult;
-    public DatabaseOperatorSave(SingleUserCrawlResult aResult){
+    private final UserLibInfo aResult;
+    public DatabaseOperatorSave(UserLibInfo aResult){
         this.aResult = aResult;
     }
     @Override
