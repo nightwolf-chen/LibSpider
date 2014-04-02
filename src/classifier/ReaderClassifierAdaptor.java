@@ -22,6 +22,15 @@
 package classifier;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import object.Book;
 import weka.classifiers.rules.ZeroR;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -31,15 +40,6 @@ import weka.core.SerializationHelper;
 import weka.core.Utils;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
-
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ReaderClassifierAdaptor implements Serializable {
 
@@ -62,7 +62,6 @@ public class ReaderClassifierAdaptor implements Serializable {
      * The actual classifier.
      */
 //    private J48 m_Classifier = new J48();
-    
     private ZeroR m_Classifier = new ZeroR();
 
     /**
@@ -70,16 +69,15 @@ public class ReaderClassifierAdaptor implements Serializable {
      */
     private boolean m_UpToDate;
 
-    final String userid = "userid";
-    final String username = "username";
-    final String major = "major";
-    final String college = "college";
     final String bookname = "bookname";
     final String author = "author";
+    final String publisher = "publisher";
     final String topic = "topic";
+    final String categorycode = "categorycode";
+    final String acquirecode = "acquirecode";
     final String lang = "lang";
 
-    final int attributeCount = 9;
+    final int attributeCount = 8;
     final int initialDateSize = 100;
 
     static public final int classCount = 5;
@@ -132,14 +130,13 @@ public class ReaderClassifierAdaptor implements Serializable {
         ArrayList<Attribute> attributes = new ArrayList<>(this.attributeCount);
 
         // Add attribute for holding messages.
-        attributes.add(new Attribute(this.userid,(List<String>)null));
-        attributes.add(new Attribute(this.username,(List<String>)null));
-        attributes.add(new Attribute(this.major,(List<String>)null));
-        attributes.add(new Attribute(this.college,(List<String>)null));
-        attributes.add(new Attribute(this.bookname,(List<String>)null));
-        attributes.add(new Attribute(this.author,(List<String>)null));
-        attributes.add(new Attribute(this.topic,(List<String>)null));
-        attributes.add(new Attribute(this.lang,(List<String>)null));
+        attributes.add(new Attribute(this.bookname, (List<String>) null));
+        attributes.add(new Attribute(this.author, (List<String>) null));
+        attributes.add(new Attribute(this.publisher, (List<String>) null));
+        attributes.add(new Attribute(this.topic, (List<String>) null));
+        attributes.add(new Attribute(this.categorycode, (List<String>) null));
+        attributes.add(new Attribute(this.acquirecode, (List<String>) null));
+        attributes.add(new Attribute(this.lang, (List<String>) null));
 
         // Add class attribute.
         ArrayList<String> classValues = new ArrayList<>(ReaderClassifierAdaptor.classCount);
@@ -155,9 +152,9 @@ public class ReaderClassifierAdaptor implements Serializable {
         m_Data.setClassIndex(m_Data.numAttributes() - 1);
     }
 
-    public void updateData(BorrowListItem dateItem, String classValue) {
+    public void updateData(Book book, String classValue) {
         // Make message into instance.
-        Instance instance = makeInstance(dateItem, m_Data);
+        Instance instance = makeInstance(book, m_Data);
 
         // Set class value for instance.
         instance.setClassValue(classValue);
@@ -174,7 +171,7 @@ public class ReaderClassifierAdaptor implements Serializable {
      * @param readerItem
      * @throws Exception if classification fails
      */
-    public String classifyReader(BorrowListItem readerItem) throws Exception {
+    public String classifyReader(Book book) throws Exception {
         // Check whether classifier has been built.
         this.buildClassifier();
 
@@ -183,7 +180,7 @@ public class ReaderClassifierAdaptor implements Serializable {
         Instances testset = m_Data.stringFreeStructure();
 
         // Make message into test instance.
-        Instance instance = makeInstance(readerItem, testset);
+        Instance instance = makeInstance(book, testset);
 
         // Filter instance.
         m_Filter.input(instance);
@@ -195,7 +192,6 @@ public class ReaderClassifierAdaptor implements Serializable {
 //        // Output class value.
 //        System.err.println("Reader classified as : "
 //                + m_Data.classAttribute().value((int) predicted));
-        
         return m_Data.classAttribute().value((int) predicted);
     }
 
@@ -227,37 +223,33 @@ public class ReaderClassifierAdaptor implements Serializable {
      * @param data	the header information
      * @return	the generated Instance
      */
-    private Instance makeInstance(BorrowListItem dataItem, Instances data) {
+    private Instance makeInstance(Book book, Instances data) {
         // Create instance of length two.
         Instance instance = new DenseInstance(this.attributeCount);
 
         // Set value for message attribute
         Attribute attribute = null;
 
-        attribute = data.attribute(this.userid);
-        
-        instance.setValue(attribute, attribute.addStringValue(dataItem.userid));
-
-        attribute = data.attribute(this.username);
-        instance.setValue(attribute, attribute.addStringValue(dataItem.username));
+        attribute = data.attribute(this.bookname);
+        instance.setValue(attribute, attribute.addStringValue(book.getBookName()));
 
         attribute = data.attribute(this.author);
-        instance.setValue(attribute, attribute.addStringValue(dataItem.author));
+        instance.setValue(attribute, attribute.addStringValue(book.getAuthor()));
 
-        attribute = data.attribute(this.bookname);
-        instance.setValue(attribute, attribute.addStringValue(dataItem.bookname));
-
-        attribute = data.attribute(this.college);
-        instance.setValue(attribute, attribute.addStringValue(dataItem.college));
-
-        attribute = data.attribute(this.lang);
-        instance.setValue(attribute, attribute.addStringValue(dataItem.lang));
-
-        attribute = data.attribute(this.major);
-        instance.setValue(attribute, attribute.addStringValue(dataItem.major));
+        attribute = data.attribute(this.publisher);
+        instance.setValue(attribute, attribute.addStringValue(book.getPublisher()));
 
         attribute = data.attribute(this.topic);
-        instance.setValue(attribute, attribute.addStringValue(dataItem.topic));
+        instance.setValue(attribute, attribute.addStringValue(book.getTopic()));
+
+        attribute = data.attribute(this.categorycode);
+        instance.setValue(attribute, attribute.addStringValue(book.getCategoryCode()));
+
+        attribute = data.attribute(this.acquirecode);
+        instance.setValue(attribute, attribute.addStringValue(book.getAcquireCode()));
+
+        attribute = data.attribute(this.lang);
+        instance.setValue(attribute, attribute.addStringValue(book.getLang()));
 
         // Give instance access to attribute information from the dataset.
         instance.setDataset(data);
@@ -273,9 +265,9 @@ public class ReaderClassifierAdaptor implements Serializable {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(filename));
-            
+
             String originDataStr = m_Data.toString();
-            String utf8EncodedStr = new String(originDataStr.getBytes(),"utf8");
+            String utf8EncodedStr = new String(originDataStr.getBytes(), "utf8");
             writer.write(m_Data.toString());
             writer.flush();
             writer.close();

@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import weka.classifiers.trees.J48;
+import object.Book;
 import weka.core.SerializationHelper;
 
 /**
@@ -34,8 +34,8 @@ import weka.core.SerializationHelper;
 public class ReaderClassifierAdaptorManager {
 
     private ReaderClassifierAdaptor classifierAdaptor;
-    private  boolean isBuilt = false;
-    public static final String defaultSerialPath = "J48TreeBinary.binary";
+    private boolean isBuilt = false;
+    public static final String defaultSerialPath = "ZeroRBinary.binary";
 
     public ReaderClassifierAdaptorManager() {
 
@@ -60,10 +60,10 @@ public class ReaderClassifierAdaptorManager {
 
     public void trainClassfierWithSingleData(DataSetItem dataItem) {
 
-        BorrowListItem borrowListItem = dataItem.getListitem();
+        Book book = dataItem.getBook();
         String classValue = dataItem.getClassValue();
         if (classValue != null) {
-            this.classifierAdaptor.updateData(borrowListItem, classValue);
+            this.classifierAdaptor.updateData(book, classValue);
         } else {
             System.out.println("No classvalue cannot used to train!");
         }
@@ -78,30 +78,19 @@ public class ReaderClassifierAdaptorManager {
         }
     }
 
-    public void visualzie() {
+    public Book getABook(ResultSet rs) {
         try {
-            classifierAdaptor.buildClassifier();
-//            J48 j48 =  classifierAdaptor.getM_Classifier();
-//            TreeClassifierVisualizer vs = new TreeClassifierVisualizer(j48);
-//            vs.visualize();
-        } catch (Exception ex) {
-            Logger.getLogger(ReaderClassifierAdaptorManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 
-    public BorrowListItem getABorrowListItem(ResultSet rs) {
-        try {
-            BorrowListItem borrowItem = new BorrowListItem();
-            borrowItem.setAuthor(rs.getString("author"));
-            borrowItem.setBookname(rs.getString("bookname"));
-            borrowItem.setCollege(rs.getString("college"));
-            borrowItem.setLang(rs.getString("lang"));
-            borrowItem.setMajor(rs.getString("major"));
-            borrowItem.setTopic(rs.getString("topic"));
-            borrowItem.setUserid(rs.getString("userid"));
-            borrowItem.setUsername(rs.getString("username"));
+            Book book = new Book("", "");
+            book.setAuthor(rs.getString("author"));
+            book.setBookName(rs.getString("bookname"));
+            book.setTopic(rs.getString("topic"));
+            book.setPublisher(rs.getString("publisher"));
+            book.setCategoryCode(rs.getString("categorycode"));
+            book.setAcquireCode(rs.getString("acquirecode"));
+            book.setLang(rs.getString("lang"));
 
-            return borrowItem;
+            return book;
         } catch (SQLException ex) {
             Logger.getLogger(ReaderClassifierAdaptorManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -112,26 +101,19 @@ public class ReaderClassifierAdaptorManager {
         ConnectionManager conMgr = new ConnectionManager();
         Connection connection = conMgr.getConnection();
         Statement stmt = OnlineDatabaseAccessor.createStatement(connection);
-        ResultSet rs = stmt.executeQuery("select * from dataset");
+        ResultSet rs = stmt.executeQuery("select * from books");
         ReaderClassifierAdaptorManager manager = new ReaderClassifierAdaptorManager();
 
         final int saveCount = 100;
         int count = saveCount;
         while (rs.next()) {
-            BorrowListItem borrowItem = new BorrowListItem();
-            borrowItem.setAuthor(rs.getString("author"));
-            borrowItem.setBookname(rs.getString("bookname"));
-            borrowItem.setCollege(rs.getString("college"));
-            borrowItem.setLang(rs.getString("lang"));
-            borrowItem.setMajor(rs.getString("major"));
-            borrowItem.setTopic(rs.getString("topic"));
-            borrowItem.setUserid(rs.getString("userid"));
-            borrowItem.setUsername(rs.getString("username"));
-            String classVlaue = rs.getString("category");
+
+            Book book = this.getABook(rs);
+            String classVlaue = ReaderClassifierAdaptor.transferCategorycodeToClass(book.getCategoryCode());
 
             System.out.println(classVlaue);
 
-            DataSetItem dataItem = new DataSetItem(borrowItem);
+            DataSetItem dataItem = new DataSetItem(book);
             dataItem.setClassValue(classVlaue);
             manager.trainClassfierWithSingleData(dataItem);
 
@@ -141,7 +123,7 @@ public class ReaderClassifierAdaptorManager {
             }
         }
 
-        manager.classifierAdaptor.saveDataToArff("lib_data.arff");
+        manager.classifierAdaptor.saveDataToArff("data.arff");
         try {
             manager.classifierAdaptor.buildClassifier();
         } catch (Exception ex) {
@@ -153,33 +135,41 @@ public class ReaderClassifierAdaptorManager {
         connection.close();
     }
 
-    public boolean isIsBuilt() {
-        return isBuilt;
-    }
-    
-    
-
-    public String classify(BorrowListItem item){
-        try {
-            return  this.classifierAdaptor.classifyReader(item);
-        } catch (Exception ex) {
-            Logger.getLogger(ReaderClassifierAdaptorManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
-            return "";
-    }
-    public static void main(String[] args) throws SQLException, Exception {
-
+    public void testClassifier() throws SQLException {
         ConnectionManager conMgr = new ConnectionManager();
         Connection connection = conMgr.getConnection();
         Statement stmt = OnlineDatabaseAccessor.createStatement(connection);
-        ResultSet rs = stmt.executeQuery("select * from dataset");
+        ResultSet rs = stmt.executeQuery("select * from books");
         ReaderClassifierAdaptorManager manager = new ReaderClassifierAdaptorManager();
-        
+
         rs.next();
+
+        Book book = manager.getABook(rs);
+        System.out.println(manager.classify(book));
+
+        rs.close();
+        stmt.close();
+        connection.close();
+    }
+
+    public boolean isBuilt() {
+        return isBuilt;
+    }
+
+    public String classify(Book book) {
+        try {
+            return this.classifierAdaptor.classifyReader(book);
+        } catch (Exception ex) {
+            Logger.getLogger(ReaderClassifierAdaptorManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "";
+    }
+
+    public static void main(String[] args) throws SQLException, Exception {
+        ReaderClassifierAdaptorManager mgr = new ReaderClassifierAdaptorManager();
         
-        BorrowListItem item = manager.getABorrowListItem(rs);
-        System.out.println(manager.classify(item));
-       
+//        mgr.train();
+        mgr.testClassifier();
     }
 
 }

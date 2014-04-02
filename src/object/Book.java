@@ -110,6 +110,15 @@ public class Book implements DBPersitance{
         this.acquireCode = acquireCode;
     }
 
+    public void setBookName(String bookName) {
+        this.bookName = bookName;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    
     @Override
     public void saveToDB() {
         

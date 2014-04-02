@@ -23,17 +23,18 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import object.Book;
 
 /**
  *
  * @author bruce
  */
-public class DataSetItem implements DBPersitance{
-    private BorrowListItem listitem ;
+public class DataSetItem{
+    private Book book ;
     private String classValue;
 
-    public DataSetItem(BorrowListItem listitem) {
-        this.listitem = listitem;
+    public DataSetItem(Book book) {
+        this.book = book;
     }
 
     public String getClassValue() {
@@ -44,46 +45,8 @@ public class DataSetItem implements DBPersitance{
         this.classValue = classValue;
     }
 
-    public BorrowListItem getListitem() {
-        return listitem;
-    }
-    
-    public boolean isValid(){
-    
-        if(classValue != null && this.listitem.isValid()){
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-    @Override
-    public void saveToDB() {
-        try {
-            
-            ConnectionManager conMgr = new ConnectionManager();
-            Connection con = conMgr.getConnection();
-            PreparedStatement pStmt = con.prepareStatement("insert into dataset values(?,?,?,?,?,?,?,?,?)");
-            
-            pStmt.setString(1, this.listitem.userid);
-            pStmt.setString(2, this.listitem.username);
-            pStmt.setString(3, this.listitem.major);
-            pStmt.setString(4, this.listitem.college);
-            pStmt.setString(5, this.listitem.bookname);
-            pStmt.setString(6, this.listitem.author);
-            pStmt.setString(7, this.listitem.topic);
-            pStmt.setString(8, this.listitem.lang);
-            pStmt.setString(9, classValue);
-            pStmt.execute();
-            
-            System.out.println("Inserted:("+this.listitem.username+","+this.listitem.bookname+")");
-            
-            pStmt.close();
-            con.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(DataSetItem.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+    public Book getBook() {
+        return book;
     }
     
 }
