@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class Spider implements Runnable {
 
         System.out.println("Begin to crawl " + userid + "borrowlist");
         PageParserBorrowList borrowListPaser = new PageParserBorrowList(userBorrowListUrl, userid, httpClient);
-        ArrayList<Object> list = borrowListPaser.parserPageForRepeatedData();
+        List<Object> list = borrowListPaser.parserPageForRepeatedData();
 
         if (list == null) {
             System.out.println("Borrowlist crawl failed...");
@@ -103,8 +104,10 @@ public class Spider implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        return new UserLibInfo(user, list);
+        
+        List<Book> books = (List)list;
+        
+        return new UserLibInfo(user,books);
     }
 
     public void crawlForAllPossibleUserAndSaveToDB() {

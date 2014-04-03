@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package object;
 
 import com.mysql.jdbc.Connection;
@@ -11,6 +10,7 @@ import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.DBPersitance;
 import db.OnlineDatabaseAccessor;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,8 +19,8 @@ import java.util.logging.Logger;
  *
  * @author bruce
  */
-public class Book implements DBPersitance{
-    
+public class Book implements DBPersitance {
+
     private String bookName;
     private String author;
     private String publishTime;
@@ -31,17 +31,16 @@ public class Book implements DBPersitance{
     private String publisher;
     private String categoryCode;
     private String acquireCode;
-    
+
     public Book(String bookName, String author) {
         this.bookName = bookName;
         this.author = author;
     }
-    
-    public Book(){
-    
+
+    public Book() {
+
     }
 
-    
     public String getBookName() {
         return bookName;
     }
@@ -122,36 +121,82 @@ public class Book implements DBPersitance{
         this.author = author;
     }
 
-    
     @Override
     public void saveToDB() {
-        
+
         try {
-            
+
             ConnectionManager conMgr = new ConnectionManager();
             Connection con = conMgr.getConnection();
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-            String sql = "insert into books(bookname,author,topic"
-                    + ",publisher,categorycode,acquirecode,lang) values('"+bookName+"','"+author+
-                    "','"+topic+"','"+publisher+
-                    "','"+categoryCode+"','"+acquireCode+"','"+lang+"')";
-            
-            
-            boolean isSuccess = OnlineDatabaseAccessor.insert(stmt, sql);
-            
-            System.out.println(sql);
-            if(isSuccess){
-                 System.out.println("success...");
+
+            if (this.exists()) {
+                String sql = "update books set borrow_count=borrow_count+1 where bookname='" + bookName
+                        + "' and author='" + author + "'";
+                OnlineDatabaseAccessor.update(stmt, sql);
+            } else {
+                String sql = "insert into books(bookname,author,topic"
+                        + ",publisher,categorycode,acquirecode,lang) values('" + bookName + "','" + author
+                        + "','" + topic + "','" + publisher
+                        + "','" + categoryCode + "','" + acquireCode + "','" + lang + "')";
+
+                OnlineDatabaseAccessor.insert(stmt, sql);
+
+                System.out.println(sql);
             }
-            
+
             stmt.close();
-            stmt=null;
+            stmt = null;
             con.close();
-            con=null;
+            con = null;
         } catch (SQLException ex) {
             Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
+
+    @Override
+    public boolean exists() {
+        try {
+            ConnectionManager conMgr = new ConnectionManager();
+            Connection con = conMgr.getConnection();
+            Statement stmt = OnlineDatabaseAccessor.createStatement(con);
+            ResultSet rs = stmt.executeQuery("select * from books where bookname='" + bookName
+                    + "' and author='" + author + "'");
+
+            boolean r = false;
+            if (rs.next()) {
+                r = true;
+            } else {
+                r = false;
+            }
+
+            rs.close();
+            stmt.close();
+            con.close();
+            
+            return r;
+        } catch (SQLException ex) {
+            Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+
+    public static Book getBookFromResultSet(ResultSet rs) {
+        Book aBook = new Book();
+
+        try {
+            aBook.bookName = rs.getString("bookname");
+            aBook.author = rs.getString("author");
+            aBook.publisher = rs.getString("publisher");
+            aBook.topic = rs.getString("topic");
+            aBook.categoryCode = rs.getString("categorycode");
+            aBook.acquireCode = rs.getString("acquirecode");
+            aBook.lang = rs.getString("lang");
+        } catch (SQLException ex) {
+            Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return aBook;
+    }
 }

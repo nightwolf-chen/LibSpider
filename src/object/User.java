@@ -11,6 +11,7 @@ import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.DBPersitance;
 import db.OnlineDatabaseAccessor;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,9 @@ public class User implements DBPersitance{
         this.college = college;
         this.major = major;
     }
+    public User(){
+    
+    }
 
     public String getUserid() {
         return userid;
@@ -47,6 +51,24 @@ public class User implements DBPersitance{
     public String getMajor() {
         return major;
     }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+    
+    
 
     @Override
     public void saveToDB() {
@@ -68,6 +90,32 @@ public class User implements DBPersitance{
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+    }
+
+    @Override
+    public boolean exists() {
+          try {
+            ConnectionManager conMgr = new ConnectionManager();
+            Connection con = conMgr.getConnection();
+            Statement stmt = OnlineDatabaseAccessor.createStatement(con);
+            ResultSet rs = stmt.executeQuery("select * from users where userid='"+userid+"'");
+
+            boolean r = false;
+            if (rs.next()) {
+                r = true;
+            } else {
+                r = false;
+            }
+
+            rs.close();
+            stmt.close();
+            con.close();
+            
+            return r;
+        } catch (SQLException ex) {
+            Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
     }
     
     

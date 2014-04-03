@@ -22,4 +22,5 @@ package db;
  */
 public interface DBPersitance {
     abstract void saveToDB();
+    abstract boolean exists();
 }

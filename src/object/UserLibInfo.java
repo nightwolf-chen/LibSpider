@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package object;
 
 import db.DBPersitance;
@@ -25,12 +24,17 @@ import object.User;
  *
  * @author bruce
  */
-public class UserLibInfo implements DBPersitance{
-    
-    private final User user;
-    private final List<Object> borrowList;
+public class UserLibInfo implements DBPersitance {
 
-    public UserLibInfo(User user, List<Object> borrowList) {
+    private final User user;
+    private final List<Book> borrowList;
+
+//    public UserLibInfo(User user, List<Object> borrowList) {
+//        this.user = user;
+//        this.borrowList = borrowList;
+//    }
+
+    public UserLibInfo(User user, List<Book> borrowList) {
         this.user = user;
         this.borrowList = borrowList;
     }
@@ -39,20 +43,25 @@ public class UserLibInfo implements DBPersitance{
         return user;
     }
 
-    public List<Object> getBorrowList() {
+    public List<Book> getBorrowList() {
         return borrowList;
     }
-    
+
     @Override
     public void saveToDB() {
-        
+
         this.user.saveToDB();
-        
-        for(Object obj : borrowList){
-            BookBorrowHistory borrowHistory = (BookBorrowHistory)obj;
+
+        for (Object obj : borrowList) {
+            BookBorrowHistory borrowHistory = (BookBorrowHistory) obj;
             borrowHistory.saveToDB();
         }
-        
+
         System.out.println("Singler User Result finished saving...");
+    }
+
+    @Override
+    public boolean exists() {
+        return this.user.exists();
     }
 }

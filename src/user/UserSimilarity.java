@@ -75,4 +75,12 @@ public class UserSimilarity {
 
         return userInfoMap;
     }
+    
+    public static void main(String[] args){
+        UserDataSource a = new UserDataSource("20101003713");
+        UserDataSource b = new UserDataSource("20101003714");
+        UserSimilarity similarity = new UserSimilarity(a.getInfo(), b.getInfo());
+        System.out.println(similarity.caculateSimilarity());
+    }
+    
 }
