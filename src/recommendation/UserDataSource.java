@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package user;
+package recommendation;
 
 import com.mysql.jdbc.Connection;
 import db.ConnectionManager;
@@ -54,8 +54,8 @@ public class UserDataSource {
             ResultSet borrowSet = stmtUser.executeQuery("select * from user_book where userid='" + userid + "'");
 
             while (borrowSet.next()) {
-                String bookName = borrowSet.getString("bookname");
-                String author = borrowSet.getString("author");
+                String bookName = borrowSet.getString("bookname").replaceAll("'", "''");
+                String author = borrowSet.getString("author").replaceAll("'", "''");
                 
                 ResultSet bookSet = stmtBook.executeQuery("select * from books where bookname='"
                         + bookName + "' and author='" + author + "'");

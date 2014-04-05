@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author bruce
  */
-public class Book implements DBPersitance {
+public class Book implements DBPersitance,Comparable<Book>{
 
     private String bookName;
     private String author;
@@ -31,6 +31,7 @@ public class Book implements DBPersitance {
     private String publisher;
     private String categoryCode;
     private String acquireCode;
+    private int borrow_count;
 
     public Book(String bookName, String author) {
         this.bookName = bookName;
@@ -121,6 +122,12 @@ public class Book implements DBPersitance {
         this.author = author;
     }
 
+    public int getBorrow_count() {
+        return borrow_count;
+    }
+    
+    
+
     @Override
     public void saveToDB() {
 
@@ -193,10 +200,28 @@ public class Book implements DBPersitance {
             aBook.categoryCode = rs.getString("categorycode");
             aBook.acquireCode = rs.getString("acquirecode");
             aBook.lang = rs.getString("lang");
+            aBook.borrow_count = rs.getInt("borrow_count");
         } catch (SQLException ex) {
             Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return aBook;
     }
+
+    @Override
+    public int compareTo(Book o) {
+        if(this.borrow_count > o.borrow_count){
+            return -1;
+        }else if(this.borrow_count < o.borrow_count){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Book{" + "bookName=" + bookName + ", author=" + author + ", borrow_count=" + borrow_count + '}';
+    }
+
 }

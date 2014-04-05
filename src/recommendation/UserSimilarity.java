@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package user;
+package recommendation;
 
 import classifier.ReaderClassifierAdaptor;
 import classifier.ReaderClassifierAdaptorManager;
@@ -28,16 +28,19 @@ import object.UserLibInfo;
  */
 public class UserSimilarity {
 
-    UserLibInfo userInfoA;
-    UserLibInfo userInfoB;
+    private UserLibInfo userInfoA;
+    private UserLibInfo userInfoB;
+    private double similarity;
+    
     String[] classValues = ReaderClassifierAdaptor.getClassValues();
 
     public UserSimilarity(UserLibInfo userInfoA, UserLibInfo userInfoB) {
         this.userInfoA = userInfoA;
         this.userInfoB = userInfoB;
+        this.similarity = this.caculateSimilarity();
     }
 
-    public double caculateSimilarity() {
+    private double caculateSimilarity() {
 
         Map<String, Integer> userA = this.getInfoMap(userInfoA);
         Map<String, Integer> userB = this.getInfoMap(userInfoB);
@@ -75,12 +78,18 @@ public class UserSimilarity {
 
         return userInfoMap;
     }
+
+    public double getSimilarity() {
+        return similarity;
+    }
+    
+    
     
     public static void main(String[] args){
         UserDataSource a = new UserDataSource("20101003713");
         UserDataSource b = new UserDataSource("20101003714");
         UserSimilarity similarity = new UserSimilarity(a.getInfo(), b.getInfo());
-        System.out.println(similarity.caculateSimilarity());
+        System.out.println(similarity.getSimilarity());
     }
     
 }
