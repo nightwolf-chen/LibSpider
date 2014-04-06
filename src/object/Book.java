@@ -12,6 +12,7 @@ import db.DBPersitance;
 import db.OnlineDatabaseAccessor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -189,6 +190,34 @@ public class Book implements DBPersitance,Comparable<Book>{
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + Objects.hashCode(this.bookName);
+        hash = 67 * hash + Objects.hashCode(this.author);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Book other = (Book) obj;
+        if (!Objects.equals(this.bookName, other.bookName)) {
+            return false;
+        }
+        if (!Objects.equals(this.author, other.author)) {
+            return false;
+        }
+        return true;
+    }
+
+    
+    
     public static Book getBookFromResultSet(ResultSet rs) {
         Book aBook = new Book();
 

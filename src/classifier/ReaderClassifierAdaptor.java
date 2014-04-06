@@ -77,15 +77,18 @@ public class ReaderClassifierAdaptor implements Serializable {
     final String acquirecode = "acquirecode";
     final String lang = "lang";
 
-    final int attributeCount = 8;
+   
     final int initialDateSize = 100;
 
-    static public final int classCount = 5;
-    static public final String classHumanScience = "人文科学";
-    static public final String classSocialScience = "社会科学";
-    static public final String classNatureScience = "自然科学";
-    static public final String classScienceTech = "科学技术";
-    static public final String classOther = "其他";
+    final int attributeCount = 8;
+//    static public final int classCount = 5;
+//    static public final String classHumanScience = "人文科学";
+//    static public final String classSocialScience = "社会科学";
+//    static public final String classNatureScience = "自然科学";
+//    static public final String classScienceTech = "科学技术";
+//    static public final String classOther = "其他";
+    
+    private String[] classValues;
     /*
      人文科学：（A,马克思主义、列宁主义、毛泽东思想、邓小平理论）（B,哲学、宗教）（H,语言、文字）（I,文学）（J,艺术）（K,历史、地理）
      社会科学：（C,社会科学总论）（D,政治、法律）（E,军事）（F,经济）（G,文化、科学、教育、体育）
@@ -93,35 +96,29 @@ public class ReaderClassifierAdaptor implements Serializable {
      科学技术：（R,医药、卫生）（S,农业科学）（T,工业技术）（U,交通运输）（V,航空、航天）（X,环境科学、安全科学）
      其他：
      */
-    
-    public static String[] getClassValues(){
-         String[] categoryClasses = {classHumanScience, classSocialScience, classNatureScience, classScienceTech, classOther};
-         return categoryClasses;
+
+    public static String[] getClassValues() {
+        String[] categoryClasses = {"A", "B", "C", "D", "E", "F", "G", 
+                                    "H", "I", "J", "K", "L", "M", "N",
+                                    "O", "P", "Q", "R", "S", "T", "U", 
+                                    "V", "W", "X", "Y", "Z","0"};
+        return categoryClasses;
     }
 
     public static String transferCategorycodeToClass(String categorycode) {
-        String[] categoryClasses = {classHumanScience, classSocialScience, classNatureScience, classScienceTech, classOther};
-        String[] tokens = {"ABHIJK", "CDEFG", "NOPQ", "RSTUVX"};
-
-        int classIndex = 4;
-
+      
         char startChar = categorycode.charAt(0);
-
-        for (int i = 0; i < tokens.length; i++) {
-            String tmpStr = tokens[i];
-            boolean found = false;
-            for (int j = 0; j < tmpStr.length(); j++) {
-                if (startChar == tmpStr.charAt(j) || startChar == (tmpStr.charAt(j) + 32)) {
-                    found = true;
-                    classIndex = i;
-                }
-            }
-            if (found) {
-                break;
-            }
+        String value = "";
+        if(startChar >= 'a' && startChar <= 'z'){
+            startChar -= 32;
+            value += startChar;
+        } else if(startChar >= 'A' && startChar <= 'Z'){
+            value += startChar;
+        }else{
+            value = "0";
         }
-
-        return categoryClasses[classIndex];
+        
+       return value;
     }
 
     /**
@@ -131,6 +128,7 @@ public class ReaderClassifierAdaptor implements Serializable {
 
         final String nameOfDataset = "LibReaderClassificationProblem";
 
+        this.classValues = ReaderClassifierAdaptor.getClassValues();
         // Create vector of attributes.
         ArrayList<Attribute> attributes = new ArrayList<>(this.attributeCount);
 
@@ -144,13 +142,14 @@ public class ReaderClassifierAdaptor implements Serializable {
         attributes.add(new Attribute(this.lang, (List<String>) null));
 
         // Add class attribute.
-        ArrayList<String> classValues = new ArrayList<>(ReaderClassifierAdaptor.classCount);
-        classValues.add(ReaderClassifierAdaptor.classHumanScience);
-        classValues.add(ReaderClassifierAdaptor.classNatureScience);
-        classValues.add(ReaderClassifierAdaptor.classSocialScience);
-        classValues.add(ReaderClassifierAdaptor.classScienceTech);
-        classValues.add(ReaderClassifierAdaptor.classOther);
-        attributes.add(new Attribute("Class", classValues));
+        List<String> classValuesArray = new ArrayList<>(this.classValues.length);
+        
+        for(String classValue : this.classValues){
+            classValuesArray.add(classValue);
+        }
+        
+        
+        attributes.add(new Attribute("Class", classValuesArray));
 
         // Create dataset with initial capacity of 100, and set index of class.
         m_Data = new Instances(nameOfDataset, attributes, this.initialDateSize);

@@ -87,7 +87,7 @@ public class UserSimilarity {
     
     public static void main(String[] args){
         UserDataSource a = new UserDataSource("20101003713");
-        UserDataSource b = new UserDataSource("20101003714");
+        UserDataSource b = new UserDataSource("20101003712");
         UserSimilarity similarity = new UserSimilarity(a.getInfo(), b.getInfo());
         System.out.println(similarity.getSimilarity());
     }

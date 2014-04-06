@@ -71,6 +71,10 @@ public class DataPreproccessor {
                         + useridB + "','" + useridA + "'," + value + ")");
             }
         }
+        
+        rs.close();
+        stmt.close();
+        con.close();
     }
 
     private boolean exists(String useridA, String useridB) {
@@ -82,11 +86,18 @@ public class DataPreproccessor {
             ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from user_user where userid_a='"
                     +useridA+"' and userid_b='"+useridB+"'");
             
+            boolean r = false;
             if(rs.next()){
-                return true;
+                r = true;
             }else{
-                return false;
+                r = false;
             }
+            
+            rs.close();
+            stmt.close();
+            con.close();
+            
+            return r;
         } catch (SQLException ex) {
             Logger.getLogger(DataPreproccessor.class.getName()).log(Level.SEVERE, null, ex);
         }

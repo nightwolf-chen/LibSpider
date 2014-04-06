@@ -98,7 +98,7 @@ public class BookRecommendation {
         Statement stmtOut = OnlineDatabaseAccessor.createStatement(con);
         
         String sql = "select * from user_user where userid_a='"
-                +user.getUserid()+"' order by similarity desc limit 10";
+                +user.getUserid()+"' order by similarity desc limit 5";
         
         ResultSet rs = OnlineDatabaseAccessor.select(stmtOut, sql);
 
@@ -109,7 +109,10 @@ public class BookRecommendation {
             Collections.sort(info.getBorrowList());
             books.addAll(info.getBorrowList());
         }
-
+        
+        //删除用户已经借阅过的图书
+        books.removeAll(this.infoA.getBorrowList());
+        
         return books;
     }
 
@@ -119,6 +122,12 @@ public class BookRecommendation {
         System.out.println(bookRecommendation.infoA.getBorrowList().size());
 //        System.out.println(bookRecommendation.getRecommendation().size());
         List<Book> books = bookRecommendation.getRecommendation();
+        
+        for(Book book:bookRecommendation.infoA.getBorrowList()){
+            System.out.println(book);
+        }
+        
+        System.out.println("------------------------");
         
         for(Book book:books){
             System.out.println(book);
