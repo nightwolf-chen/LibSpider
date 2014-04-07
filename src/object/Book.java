@@ -12,6 +12,8 @@ import db.DBPersitance;
 import db.OnlineDatabaseAccessor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -252,5 +254,15 @@ public class Book implements DBPersitance,Comparable<Book>{
     public String toString() {
         return "Book{" + "bookName=" + bookName + ", author=" + author + ", borrow_count=" + borrow_count + '}';
     }
-
+    
+    public Map<String,String> toMap(){
+        Map<String,String> bookMap = new HashMap<>();
+        bookMap.put("bookname", this.bookName);
+        bookMap.put("author", this.author);
+        bookMap.put("topic", this.topic);
+        bookMap.put("acquirecode", this.acquireCode);
+        bookMap.put("publisher", this.publisher);
+        bookMap.put("lang", this.lang);
+        return bookMap;
+    }
 }

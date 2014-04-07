@@ -19,17 +19,19 @@ import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.OnlineDatabaseAccessor;
+import java.io.OutputStreamWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import libspider.Spider;
 import object.Book;
 import object.User;
 import object.UserLibInfo;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -115,12 +117,22 @@ public class BookRecommendation {
         
         return books;
     }
+    
+    public String toJson() throws SQLException, JSONException{
+        List<Book> books = this.getRecommendation();
+        
+        JSONObject object = new JSONObject();
+        object.accumulate("userid", this.user.getUserid()); 
+        object.accumulate("books", books);
+            
+        return object.toString();
+    }
 
     public static void main(String[] args) throws Exception {
 
         BookRecommendation bookRecommendation = new BookRecommendation("20100100001");
         System.out.println(bookRecommendation.infoA.getBorrowList().size());
-//        System.out.println(bookRecommendation.getRecommendation().size());
+        System.out.println(bookRecommendation.getRecommendation().size());
         List<Book> books = bookRecommendation.getRecommendation();
         
         for(Book book:bookRecommendation.infoA.getBorrowList()){
@@ -132,5 +144,6 @@ public class BookRecommendation {
         for(Book book:books){
             System.out.println(book);
         }
+        System.out.println(bookRecommendation.toJson());
     }
 }
