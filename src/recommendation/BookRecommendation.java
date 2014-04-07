@@ -19,7 +19,6 @@ import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.OnlineDatabaseAccessor;
-import java.io.OutputStreamWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ import libspider.Spider;
 import object.Book;
 import object.User;
 import object.UserLibInfo;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
