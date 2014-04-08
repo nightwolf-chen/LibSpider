@@ -62,7 +62,7 @@ public class UserSimilarity {
 
     private Map<String, Integer> getInfoMap(UserLibInfo userInfo) {
 
-        Map<String, Integer> userInfoMap = new HashMap<>();
+        Map<String, Integer> userInfoMap = new HashMap<String,Integer>();
         ReaderClassifierAdaptorManager cMgr = new ReaderClassifierAdaptorManager();
 
         for (String str : classValues) {

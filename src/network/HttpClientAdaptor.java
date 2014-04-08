@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -30,30 +31,64 @@ import org.apache.http.impl.client.HttpClients;
  */
 public class HttpClientAdaptor {
 
+    /**
+     *
+     */
     protected CloseableHttpClient httpclient = HttpClients.createDefault();
     private final HttpClientContext localContext = HttpClientContext.create();
     private final int timeout = 3000;
-    private final String encode = "utf8";
+    private String encode = "utf8";
 
-    public HttpClientAdaptor() {
+    /**
+     *
+     * @param encode
+     */
+    public HttpClientAdaptor(String encode) {
+
         CookieStore cookieStore = new BasicCookieStore();
         localContext.setCookieStore(cookieStore);
+        this.encode = encode;
+
     }
 
+    /**
+     *
+     */
+    public HttpClientAdaptor() {
+
+        CookieStore cookieStore = new BasicCookieStore();
+        localContext.setCookieStore(cookieStore);
+
+    }
+
+    /**
+     *
+     * @param url
+     * @return
+     */
     public String doGet(String url) {
 
         try {
+            
             HttpGet httpGet = new HttpGet(url);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).build();//璁剧疆璇锋����杈���舵���            
+            
+            RequestConfig requestConfig = RequestConfig
+                    .custom()
+                    .setSocketTimeout(timeout)
+                    .setConnectTimeout(timeout)
+                    .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                    .build();
             httpGet.setConfig(requestConfig);
-            CloseableHttpResponse response = this.httpclient.execute(httpGet, localContext);
 
+            CloseableHttpResponse response = this.httpclient.execute(httpGet, localContext);
             BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), this.encode));
-            String htmlStr = "";
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                htmlStr += (line + "\n");
+            String htmlStr = null;
+            int c = 0;
+            StringBuilder temp = new StringBuilder();
+            while ((c = br.read()) != -1) {
+                temp.append((char) c);
             }
+            htmlStr = temp.toString();
 
             httpGet.releaseConnection();
             httpGet.completed();
@@ -66,22 +101,37 @@ public class HttpClientAdaptor {
         return null;
     }
 
+    /**
+     *
+     * @param url
+     * @param parameters
+     * @return
+     */
     public String doPost(String url, List<NameValuePair> parameters) {
 
         try {
+
             HttpPost httpPost = new HttpPost(url);
-            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(timeout).setConnectTimeout(timeout).build();//璁剧疆璇锋����杈���舵���            
+            
+            RequestConfig requestConfig = RequestConfig
+                    .custom()
+                    .setSocketTimeout(timeout)
+                    .setConnectTimeout(timeout)
+                    .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                    .build();
+            
             httpPost.setConfig(requestConfig);
             httpPost.setEntity(new UrlEncodedFormEntity(parameters));
+
             CloseableHttpResponse response = this.httpclient.execute(httpPost, localContext);
-
             BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), this.encode));
-
-            String htmlStr = "";
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                htmlStr += (line + "\n");
+            String htmlStr = null;
+            int c = 0;
+            StringBuilder temp = new StringBuilder();
+            while ((c = br.read()) != -1) {
+                temp.append((char) c);
             }
+            htmlStr = temp.toString();
 
             httpPost.completed();
             httpPost.releaseConnection();
@@ -96,8 +146,15 @@ public class HttpClientAdaptor {
         return null;
     }
 
-    public CloseableHttpClient getHttpclient() {
-        return httpclient;
+    /**
+     *
+     */
+    public void close(){
+        try {
+            this.httpclient.close();
+        } catch (IOException ex) {
+            Logger.getLogger(HttpClientAdaptor.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

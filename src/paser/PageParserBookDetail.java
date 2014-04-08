@@ -46,7 +46,7 @@ public class PageParserBookDetail extends PageParser {
     @Override
     public Map<String, String> parserPageForData() {
 
-        Map<String, String> data = new HashMap<>();
+        Map<String, String> data = new HashMap<String,String>();
 
         String pageContent = this.httpClient.doGet(this.bookDetailUrl);
         

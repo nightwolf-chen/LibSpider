@@ -10,7 +10,6 @@ import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.OnlineDatabaseAccessor;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,12 +18,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import network.HttpClientAdaptor;
-import network.HttpProxyGetter;
-import network.ProxiedHttpClientAdaptor;
 import object.Book;
 import object.BookBorrowHistory;
 import object.User;
-import org.apache.http.HttpHost;
 import paser.PageParserBookDetail;
 import paser.PageParserBorrowList;
 import paser.PageParserUserInfo;
@@ -39,8 +35,9 @@ public class Spider implements Runnable {
 
     public UserLibInfo crawlDataForUser(String userid) {
 
-        HttpHost proxy = new HttpProxyGetter().getARandomProxy();
-        HttpClientAdaptor httpClient = new ProxiedHttpClientAdaptor(proxy);
+//        HttpHost proxy = new HttpProxyGetter().getAProxy();
+//        HttpClientAdaptor httpClient = new ProxiedHttpClientAdaptor(proxy);
+        HttpClientAdaptor httpClient = new HttpClientAdaptor();
 
         System.out.println("Begin to crawl " + userid + "userinfo");
         PageParserUserInfo userInfoPaser = new PageParserUserInfo(userid, httpClient);
@@ -92,15 +89,11 @@ public class Spider implements Runnable {
         }
 
         //关闭网络连接释放资源
-        try {
-            httpClient.getHttpclient().close();
-        } catch (IOException ex) {
-            Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        List<Book> books = (List)list;
-        
-        return new UserLibInfo(user,books);
+
+        httpClient.close();
+        List<Book> books = (List) list;
+
+        return new UserLibInfo(user, books);
     }
 
     public void crawlForAllPossibleUserAndSaveToDB() {
@@ -112,7 +105,7 @@ public class Spider implements Runnable {
         ConnectionManager conMgr = new ConnectionManager();
         Connection con = conMgr.getConnection();
         Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-       
+
 
         for (int collegeIndex = 0; collegeIndex < collegeNum; collegeIndex++) {
 
@@ -128,9 +121,9 @@ public class Spider implements Runnable {
             while (targetNum > 0) {
 
                 /*这里的代码意思是没有找到合法的学号的时候使用随机搜索的方案
-                  找到第一个可用的学号以后可以判断其它学号应该在它的附近所以
-                  改用在它的附近进行线性搜素。
-                */
+                找到第一个可用的学号以后可以判断其它学号应该在它的附近所以
+                改用在它的附近进行线性搜素。
+                 */
                 if (isRandomStudentCode) {
                     studentCode = (int) (Math.random() * collegeStudentNum);
                 } else {
@@ -176,7 +169,7 @@ public class Spider implements Runnable {
 
     private List<String> generateCollegeCodes(int collegeNum) {
 
-        List<String> collegeCodes = new ArrayList<>();
+        List<String> collegeCodes = new ArrayList<String>();
         for (int i = 1; i <= collegeNum; i++) {
             String code = null;
             if (i < 10) {
@@ -197,7 +190,7 @@ public class Spider implements Runnable {
             ConnectionManager conMgr = new ConnectionManager();
             Connection con = conMgr.getConnection();
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-            String sql = "select * from lib_user where userid = '" + userid + "'";
+            String sql = "select * from users where userid = '" + userid + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             if (rs.next()) {
@@ -253,5 +246,4 @@ public class Spider implements Runnable {
     public void run() {
         crawlForAllPossibleUserAndSaveToDB();
     }
-
 }

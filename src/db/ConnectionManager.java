@@ -24,7 +24,7 @@ public class ConnectionManager {
     private String ServerHost = "localhost";
     private String port = "3306";
     private String userName = "root";
-    private String passWord = "123";
+    private String passWord = "466202783";
 
     public ConnectionManager() {
         //VCAP_SERVICES
@@ -79,5 +79,8 @@ public class ConnectionManager {
         return passWord;
     }
     
-    
+    public static void main(String[] args){
+        ConnectionManager cMgr = new ConnectionManager();
+        Connection con = cMgr.getConnection();
+    }
 }

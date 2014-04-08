@@ -7,6 +7,7 @@ package libspider;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import object.UserLibInfo;
 
 /**
  *
@@ -21,7 +22,8 @@ public class LibSpider {
 //        }
 //  
             new Spider().run();
-       
+//       UserLibInfo libInfo = new Spider().crawlDataForUser("20101003712");
+//       libInfo.saveToDB();
     }
 
 }

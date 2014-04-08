@@ -48,7 +48,7 @@ public class PageParserBorrowList extends PageParser {
     @Override
     public ArrayList<Object> parserPageForRepeatedData() {
 
-        ArrayList<Object> list = new ArrayList<>();
+        ArrayList<Object> list = new ArrayList<Object>();
 
         System.out.println("->Begin to load borrowlist page");
         String pageContent = this.httpClient.doGet(this.url);

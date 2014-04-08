@@ -15,13 +15,6 @@
  */
 package network;
 
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.Statement;
-import db.ConnectionManager;
-import db.OnlineDatabaseAccessor;
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -29,128 +22,136 @@ import java.util.logging.Logger;
 import org.apache.http.HttpHost;
 import org.json.JSONArray;
 import org.json.JSONException;
-import util.TimeTool;
+import org.nirvawolf.douban.util.SerializatioinHelper;
+import org.nirvawolf.douban.util.TimeTool;
 
 /**
  *
  * @author bruce
  */
 public class HttpProxyGetter {
-    
-    private final int UpdateTimeGap = 1000 * 60 * 5;
-    
-    public HttpHost getARandomProxy(){
-        
+
+    private final int UpdateTimeGap = 1000 * 60 * 30;
+
+    private final String proxySavingPath = "proxies.list";
+
+    public HttpHost getAProxy() {
+
         List<HttpHost> proxies = this.getAvailableProxies();
 
-        int randomIndex = (int) ((Math.random() * 1000) % proxies.size());
-        return proxies.get(randomIndex);
-    
-    }
-    public List<HttpHost> getAvailableProxies() {
-        try {
-
-            this.checkProxyUpdate();
-            List<HttpHost> proxies = new ArrayList<>();
-
-            Connection dbCon = new ConnectionManager().getConnection();
-            Statement stmt = OnlineDatabaseAccessor.createStatement(dbCon);
-            ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies order by updatetime desc");
-
-            while (rs.next()) {
-                String host = rs.getString("host");
-                String port = rs.getString("port");
-                proxies.add(new HttpHost(host, Integer.valueOf(port)));
+        for (HttpHost proxy : proxies) {
+            if (this.isProxyReachable(proxy)) {
+                return proxy;
             }
-
-            rs.close();
-            stmt.close();
-            dbCon.close();
-            rs = null;
-            stmt = null;
-            dbCon = null;
-
-            return proxies;
-        } catch (SQLException ex) {
-            Logger.getLogger(HttpProxyGetter.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return null;
     }
 
-    private void checkProxyUpdate() {
+    private boolean isProxyReachable(HttpHost proxy) {
+        HttpClientAdaptor clientAdaptor = new ProxiedHttpClientAdaptor(proxy);
+        String result = clientAdaptor.doGet("http://www.baidu.com");
+        return (result != null) ? true : false;
+    }
 
-        if (!this.shouldCheckUpdate()) {
-            return;
+    public List<HttpHost> getAvailableProxies() {
+
+        this.doUpdate();
+
+        List<HttpHost> proxies = new ArrayList<HttpHost>();
+        List<HttpProxyRecord> proxyRecords = this.loadExistingProxyRecords();
+
+        for (HttpProxyRecord proxyRecord : proxyRecords) {
+            String host = proxyRecord.host;
+            int port = Integer.valueOf(proxyRecord.port);
+            HttpHost proxy = new HttpHost(host, port);
+            proxies.add(proxy);
         }
 
-        System.out.println("Update proxy list...");
-        
+        return proxies;
+    }
+
+    private void doUpdate() {
+
         try {
-
-            String currentTimeStr = new TimeTool().getCurrentTime();
-            Connection con = new ConnectionManager().getConnection();
-            Statement stmt = OnlineDatabaseAccessor.createStatement(con);
-            HttpClientAdaptor httpClientAdaptor = new HttpClientAdaptor();
-
-            String jsonContent = httpClientAdaptor.doGet("http://letushide.com/export/json/http,all,cn/");
-            JSONArray jsonArray = new JSONArray(jsonContent);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-
-                String host = jsonArray.getJSONObject(i).getString("host");
-                int port = jsonArray.getJSONObject(i).getInt("port");
-                String portStr = String.valueOf(port);
-
-                ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies where host='" + host + "' and port='" + portStr + "'");
-                if (rs.next()) {
-                    OnlineDatabaseAccessor.update(stmt, "update proxies set updatetime='" + currentTimeStr + "' where host='" + host + "' and port ='" + portStr + "'");
-                } else {
-                    OnlineDatabaseAccessor.insert(stmt, "insert into proxies(host,port,updatetime) values('" + host + "','" + portStr + "','" + currentTimeStr + "')");
-                }
-                rs.close();
+            
+            if (this.shouldCheckUpdate()) {
+                this.updateProxies();
             }
 
-            OnlineDatabaseAccessor.delete(stmt, "delete from proxies where updatetime<'" + currentTimeStr + "'");
-
-            stmt.close();
-            con.close();
-            stmt = null;
-            con = null;
-
-            try {
-                httpClientAdaptor.getHttpclient().close();
-            } catch (IOException ex) {
-                Logger.getLogger(HttpProxyGetter.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } catch (JSONException | SQLException ex) {
+        } catch (JSONException ex) {
             Logger.getLogger(HttpProxyGetter.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+
+    private void updateProxies() throws JSONException {
+
+        System.out.println("Update proxy list...");
+
+        String currentTimeStr = new TimeTool().getCurrentTime();
+        HttpClientAdaptor httpClientAdaptor = new HttpClientAdaptor();
+        List<HttpProxyRecord> newProxyRecords = new ArrayList<HttpProxyRecord>();
+
+        String jsonContent = httpClientAdaptor.doGet("http://letushide.com/export/json/http,all,cn/");
+        JSONArray jsonArray = new JSONArray(jsonContent);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+
+            String host = jsonArray.getJSONObject(i).getString("host");
+            int port = jsonArray.getJSONObject(i).getInt("port");
+            String portStr = String.valueOf(port);
+
+            HttpProxyRecord newProxyRecord = new HttpProxyRecord();
+            newProxyRecord.host = host;
+            newProxyRecord.port = portStr;
+            newProxyRecord.updatetime = currentTimeStr;
+
+            newProxyRecords.add(newProxyRecord);
+        }
+
+        httpClientAdaptor.close();
+
+        this.saveProxyRecords(newProxyRecords);
     }
 
     private boolean shouldCheckUpdate() {
 
-        try {
-            
-            Connection dbCon = new ConnectionManager().getConnection();
-            Statement stmt = OnlineDatabaseAccessor.createStatement(dbCon);
-            ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from proxies order by updatetime");
+        List<HttpProxyRecord> proxyRecords = this.loadExistingProxyRecords();
 
-            if (rs.next()) {
-                TimeTool tTool = new TimeTool();
-                String lastUpdateTime = rs.getString("updatetime");
-                String currentTime = tTool.getCurrentTime();
-                long timeGap = tTool.calculateDiscance(lastUpdateTime, currentTime);
-                if(timeGap >= 0 && timeGap < this.UpdateTimeGap){
-                    return false;
-                }
-            }
+        if(proxyRecords == null){
             return true;
-        } catch (SQLException ex) {
-            Logger.getLogger(HttpProxyGetter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        for (HttpProxyRecord proxyRecord : proxyRecords) {
+
+            TimeTool tTool = new TimeTool();
+            String lastUpdateTime = proxyRecord.updatetime;
+            String currentTime = tTool.getCurrentTime();
+
+            long timeGap = tTool.calculateDiscance(lastUpdateTime, currentTime);
+            if (timeGap >= 0 && timeGap < this.UpdateTimeGap) {
+                return false;
+            }
+
         }
 
         return true;
+    }
+
+    private List<HttpProxyRecord> loadExistingProxyRecords() {
+        List<HttpProxyRecord> proxyRecords = (List<HttpProxyRecord>) SerializatioinHelper
+                .restoreObjectFromFile(this.proxySavingPath);
+        return proxyRecords;
+    }
+
+    private void saveProxyRecords(List<HttpProxyRecord> proxyRecords) {
+        SerializatioinHelper.serializeToFile(proxyRecords, this.proxySavingPath);
+    }
+    
+    public static void main(String[] args){
+            
+        HttpHost aProxy = new HttpProxyGetter().getAProxy();
+        System.out.println(aProxy.getHostName()+":"+aProxy.getPort());
     }
 }

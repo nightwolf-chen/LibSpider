@@ -42,7 +42,7 @@ public class PageParserLoginInfo extends PageParser{
         String regex = "<meta http-equiv=\"refresh\" content=\"0.1;url=(.*?)\"";
       
         PatternTool patternTool = new PatternTool();
-        List<NameValuePair> parameters = new ArrayList<>();
+        List<NameValuePair> parameters = new ArrayList<NameValuePair>();
         parameters.add(new BasicNameValuePair("userid", userid));
         String pageContent = this.httpClient.doPost(urlStr, parameters);
         
@@ -56,7 +56,7 @@ public class PageParserLoginInfo extends PageParser{
             return null;
         }
         
-        Map<String,String> data = new HashMap<>();
+        Map<String,String> data = new HashMap<String,String>();
         
         data.put(PageParserLoginInfo.kUserPageUrl, userPageUrl);
         

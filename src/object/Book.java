@@ -14,7 +14,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -195,8 +194,8 @@ public class Book implements DBPersitance,Comparable<Book>{
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 67 * hash + Objects.hashCode(this.bookName);
-        hash = 67 * hash + Objects.hashCode(this.author);
+        hash = 67 * hash + this.bookName.hashCode();
+        hash = 67 * hash + this.author.hashCode();
         return hash;
     }
 
@@ -209,10 +208,10 @@ public class Book implements DBPersitance,Comparable<Book>{
             return false;
         }
         final Book other = (Book) obj;
-        if (!Objects.equals(this.bookName, other.bookName)) {
+        if (!this.bookName.equals(other.bookName)) {
             return false;
         }
-        if (!Objects.equals(this.author, other.author)) {
+        if (!this.author.equals(other.author)) {
             return false;
         }
         return true;
@@ -256,7 +255,7 @@ public class Book implements DBPersitance,Comparable<Book>{
     }
     
     public Map<String,String> toMap(){
-        Map<String,String> bookMap = new HashMap<>();
+        Map<String,String> bookMap = new HashMap<String,String>();
         bookMap.put("bookname", this.bookName);
         bookMap.put("author", this.author);
         bookMap.put("topic", this.topic);

@@ -130,7 +130,7 @@ public class ReaderClassifierAdaptor implements Serializable {
 
         this.classValues = ReaderClassifierAdaptor.getClassValues();
         // Create vector of attributes.
-        ArrayList<Attribute> attributes = new ArrayList<>(this.attributeCount);
+        ArrayList<Attribute> attributes = new ArrayList<Attribute>(this.attributeCount);
 
         // Add attribute for holding messages.
         attributes.add(new Attribute(this.bookname, (List<String>) null));
@@ -142,7 +142,7 @@ public class ReaderClassifierAdaptor implements Serializable {
         attributes.add(new Attribute(this.lang, (List<String>) null));
 
         // Add class attribute.
-        List<String> classValuesArray = new ArrayList<>(this.classValues.length);
+        List<String> classValuesArray = new ArrayList<String>(this.classValues.length);
         
         for(String classValue : this.classValues){
             classValuesArray.add(classValue);

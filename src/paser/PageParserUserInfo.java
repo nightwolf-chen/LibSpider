@@ -34,7 +34,7 @@ public class PageParserUserInfo extends PageParser {
     @Override
     public Map<String, String> parserPageForData() {
 
-        Map<String, String> data = new HashMap<>();
+        Map<String, String> data = new HashMap<String,String>();
         data.put(kUserid, this.userid);
 
         System.out.println("Begin to crawl " +userid + "login page");
