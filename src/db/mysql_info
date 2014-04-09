@@ -1,0 +1,15 @@
+MySQL 5.5 database added.  Please make note of these credentials:
+
+       Root User: adminR8yHT54
+   Root Password: 7S8H11IUGkyA
+   Database Name: books
+
+Connection URL: mysql://$OPENSHIFT_MYSQL_DB_HOST:$OPENSHIFT_MYSQL_DB_PORT/
+
+Please make note of these MySQL credentials again:
+  Root User: adminR8yHT54
+  Root Password: 7S8H11IUGkyA
+URL: https://books-chenjidong.rhcloud.com/phpmyadmin/
+
+You can manage your new MySQL database by also embedding phpmyadmin.
+The phpmyadmin username and password will be the same as the MySQL credentials above.

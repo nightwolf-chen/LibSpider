@@ -13,6 +13,7 @@ File Encoding         : 65001
 Date: 2014-04-09 10:09:39
 */
 
+use books;
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------

@@ -27,6 +27,14 @@ public class ConnectionManager {
     private String passWord = "466202783";
 
     public ConnectionManager() {
+
+        String osUserName = System.getProperty("user.name");;
+        if (osUserName == null || !osUserName.equals("nightwolf")) {
+            this.DatabaseName = "books";
+            this.ServerHost = "127.2.126.130";
+            this.userName = "adminR8yHT54";
+            this.passWord = "7S8H11IUGkyA";
+        }
         //VCAP_SERVICES
         String databaseInfo = java.lang.System.getenv("VCAP_SERVICES");
 
@@ -78,8 +86,8 @@ public class ConnectionManager {
     public String getPassWord() {
         return passWord;
     }
-    
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         ConnectionManager cMgr = new ConnectionManager();
         Connection con = cMgr.getConnection();
     }
