@@ -112,7 +112,7 @@ public class Spider implements Runnable {
             final int collegeStudentNum = 9999;
             String collegeCode = collegeCodes.get(collegeIndex);
             int alreadyCrawCount = this.getUserCountAlreadyCrawled(collegeCode);
-            final int numToCraw = 10;
+            final int numToCraw = 20;
             int targetNum = numToCraw - alreadyCrawCount;
             int tCount = 0;
             int studentCode = 0;

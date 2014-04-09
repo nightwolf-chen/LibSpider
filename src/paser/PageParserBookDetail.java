@@ -21,7 +21,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import network.HttpClientAdaptor;
-import util.HTMLSpirit;
+import org.nirvawolf.douban.util.HTMLSpirit;
+
 
 /**
  *
