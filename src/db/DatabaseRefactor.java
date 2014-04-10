@@ -16,9 +16,11 @@
 package db;
 
 import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import object.Book;
 
 /**
  *
@@ -117,8 +119,35 @@ public class DatabaseRefactor {
         }
     }
 
+    public void refactorBookid() throws SQLException {
+        Connection con = new ConnectionManager().getConnection();
+        
+        Statement stmt1 = OnlineDatabaseAccessor.createStatement(con);
+        ResultSet rs = stmt1.executeQuery("select * from books");
+        
+        PreparedStatement stmt2 = (PreparedStatement) con.prepareStatement("update user_book set bookid=? where bookname=? and author=?");
+
+        int count = 0;
+        while(rs.next()){
+           
+           Book aBook = Book.getBookFromResultSet(rs);
+           
+           
+           stmt2.setString(1, String.valueOf(aBook.getBookid()));
+           stmt2.setString(2, aBook.getBookName());
+           stmt2.setString(3, aBook.getAuthor());
+           
+           stmt2.execute();
+           
+           System.out.println("..."+count++);
+           
+        }
+        
+        con.close();
+    }
+
     public static void main(String[] args) throws SQLException {
         DatabaseRefactor dr = new DatabaseRefactor();
-        dr.refactorUserBook();
+        dr.refactorBookid();
     }
 }

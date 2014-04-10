@@ -32,7 +32,11 @@ import paser.PageParserUserInfo;
 public class Spider implements Runnable {
 
     private final String studentNumFilePath = "student.num";
-
+    
+    private Spider(){
+    
+    }
+    
     public UserLibInfo crawlDataForUser(String userid) {
 
 //        HttpHost proxy = new HttpProxyGetter().getAProxy();

@@ -65,6 +65,7 @@ public class ConnectionManager {
         Connection con = null;
         try {
             con = (Connection) DriverManager.getConnection(this.getConnectionStr(), this.userName, this.passWord);
+            con.setCharacterEncoding(this.Encode);
         } catch (SQLException ex) {
             Logger.getLogger(ConnectionManager.class.getName()).log(Level.SEVERE, null, ex);
         }

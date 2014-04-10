@@ -19,12 +19,12 @@ import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 import db.ConnectionManager;
 import db.OnlineDatabaseAccessor;
+import java.security.InvalidParameterException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import libspider.Spider;
 import object.Book;
 import object.User;
 import object.UserLibInfo;
@@ -43,7 +43,7 @@ public class BookRecommendation {
     public BookRecommendation(String userid) throws SQLException {
         this.user.setUserid(userid);
         if (!user.exists()) {
-            preproccess();
+            throw new InvalidParameterException("No such User!");
         } else {
             infoA = new UserDataSource(userid).getInfo();
         }
@@ -51,41 +51,41 @@ public class BookRecommendation {
 
     private void preproccess() throws SQLException {
 
-        Spider spider = new Spider();
-        this.infoA = spider.crawlDataForUser(user.getUserid());
-        if (infoA != null) {
-            infoA.saveToDB();
-        } else {
-            throw new NullPointerException();
-        }
-
-        ConnectionManager conMgr = new ConnectionManager();
-        Connection con = conMgr.getConnection();
-        Statement stmtOut = OnlineDatabaseAccessor.createStatement(con);
-        Statement stmtIn = OnlineDatabaseAccessor.createStatement(con);
-
-        ResultSet userRs = stmtOut.executeQuery("select * from users");
-
-        while (userRs.next()) {
-            String useridB = userRs.getString("userid");
-            if (useridB.equals(this.user.getUserid())) {
-
-                UserDataSource sourceB = new UserDataSource(useridB);
-                UserSimilarity similarity = new UserSimilarity(infoA, sourceB.getInfo());
-                double value = similarity.getSimilarity();
-
-                OnlineDatabaseAccessor.insert(stmtIn, "insert into user_user values('"
-                        + user.getUserid() + "','" + useridB + "'," + value + ")");
-
-                OnlineDatabaseAccessor.insert(stmtIn, "insert into user_user values('"
-                        + useridB + "','" + user.getUserid() + "'," + value + ")");
-            }
-        }
-
-        userRs.close();
-        stmtIn.close();
-        stmtOut.close();
-        con.close();
+//        Spider spider = new Spider();
+//        this.infoA = spider.crawlDataForUser(user.getUserid());
+//        if (infoA != null) {
+//            infoA.saveToDB();
+//        } else {
+//            throw new NullPointerException();
+//        }
+//
+//        ConnectionManager conMgr = new ConnectionManager();
+//        Connection con = conMgr.getConnection();
+//        Statement stmtOut = OnlineDatabaseAccessor.createStatement(con);
+//        Statement stmtIn = OnlineDatabaseAccessor.createStatement(con);
+//
+//        ResultSet userRs = stmtOut.executeQuery("select * from users");
+//
+//        while (userRs.next()) {
+//            String useridB = userRs.getString("userid");
+//            if (useridB.equals(this.user.getUserid())) {
+//
+//                UserDataSource sourceB = new UserDataSource(useridB);
+//                UserSimilarity similarity = new UserSimilarity(infoA, sourceB.getInfo());
+//                double value = similarity.getSimilarity();
+//
+//                OnlineDatabaseAccessor.insert(stmtIn, "insert into user_user values('"
+//                        + user.getUserid() + "','" + useridB + "'," + value + ")");
+//
+//                OnlineDatabaseAccessor.insert(stmtIn, "insert into user_user values('"
+//                        + useridB + "','" + user.getUserid() + "'," + value + ")");
+//            }
+//        }
+//
+//        userRs.close();
+//        stmtIn.close();
+//        stmtOut.close();
+//        con.close();
 
     }
 

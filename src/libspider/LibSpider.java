@@ -20,7 +20,7 @@ public class LibSpider {
 //            ConcurrencyManager.mainEventExecutor.execute(new Spider());
 //        }
 //  
-            new Spider().run();
+//            new Spider().run();
 //       UserLibInfo libInfo = new Spider().crawlDataForUser("20101003712");
 //       libInfo.saveToDB();
     }

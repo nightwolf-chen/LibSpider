@@ -54,11 +54,9 @@ public class UserDataSource {
             ResultSet borrowSet = stmtUser.executeQuery("select * from user_book where userid='" + userid + "'");
 
             while (borrowSet.next()) {
-                String bookName = borrowSet.getString("bookname").replaceAll("'", "''");
-                String author = borrowSet.getString("author").replaceAll("'", "''");
-                
-                ResultSet bookSet = stmtBook.executeQuery("select * from books where bookname='"
-                        + bookName + "' and author='" + author + "'");
+
+                int bookid = borrowSet.getInt("bookid");
+                ResultSet bookSet = stmtBook.executeQuery("select * from books where bookid="+bookid);
                
                 if (bookSet.next()) {
                     Book aBook = Book.getBookFromResultSet(bookSet);

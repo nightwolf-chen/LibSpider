@@ -33,6 +33,7 @@ public class Book implements DBPersitance,Comparable<Book>{
     private String publisher;
     private String categoryCode;
     private String acquireCode;
+    private int bookid;
     private int borrow_count;
 
     public Book(String bookName, String author) {
@@ -231,12 +232,18 @@ public class Book implements DBPersitance,Comparable<Book>{
             aBook.acquireCode = rs.getString("acquirecode");
             aBook.lang = rs.getString("lang");
             aBook.borrow_count = rs.getInt("borrow_count");
+            aBook.bookid = rs.getInt("bookid");
         } catch (SQLException ex) {
             Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return aBook;
     }
+
+    public int getBookid() {
+        return bookid;
+    }
+    
 
     @Override
     public int compareTo(Book o) {
