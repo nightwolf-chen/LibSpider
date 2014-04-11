@@ -21,7 +21,6 @@ import db.ConnectionManager;
 import db.OnlineDatabaseAccessor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,22 +34,11 @@ public class DataPreproccessor {
 
     public void preCaculateSimilarities() throws SQLException {
 
-        List<UserDataSource> userSources = new ArrayList<UserDataSource>();
+        List<UserDataSource> userSources = this.getSources();
+
         ConnectionManager conMgr = new ConnectionManager();
         Connection con = conMgr.getConnection();
-        Statement stmt = OnlineDatabaseAccessor.createStatement(con);
         Statement stmtIn = OnlineDatabaseAccessor.createStatement(con);
-        ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from users");
-
-        System.out.println("Tying to get user data...");
-        while (rs.next()) {
-            String userid = rs.getString("userid");
-            userSources.add(new UserDataSource(userid));
-            System.out.println("user:"+userid+" data loaded.");
-        }
-        System.out.println("User data all loaded");
-
-        System.out.println("totol:" + userSources.size());
 
         for (int i = 0; i < userSources.size(); i++) {
 
@@ -59,10 +47,12 @@ public class DataPreproccessor {
             for (int j = i + 1; j < userSources.size(); j++) {
 
                 UserDataSource sourceB = userSources.get(j);
-                
+
                 String useridA = sourceA.getUserid();
                 String useridB = sourceB.getUserid();
-                if (this.exists(useridA, useridB)) {
+
+
+                if (this.exists(useridA, useridB, con)) {
                     continue;
                 }
 
@@ -71,26 +61,52 @@ public class DataPreproccessor {
                 UserSimilarity similarity = new UserSimilarity(sourceA.getInfo(), sourceB.getInfo());
                 double value = similarity.getSimilarity();
 
-                OnlineDatabaseAccessor.insert(stmtIn, "insert into user_user values('"
-                        + useridA + "','" + useridB + "'," + value + ")");
+                String sql1 = "insert into user_user values('"
+                        + useridA + "','" + useridB + "'," + value + ")";
+                OnlineDatabaseAccessor.insert(stmtIn, sql1);
 
-                OnlineDatabaseAccessor.insert(stmtIn, "insert into user_user values('"
-                        + useridB + "','" + useridA + "'," + value + ")");
+                String sql2 = "insert into user_user values('"
+                        + useridB + "','" + useridA + "'," + value + ")";
+                OnlineDatabaseAccessor.insert(stmtIn, sql2);
+
+                System.out.println(sql1);
+                System.out.println(sql2);
 
                 System.out.println("Proccess:(" + useridA + "," + useridB + ") done!");
             }
         }
 
-        rs.close();
-        stmt.close();
+        stmtIn.close();
         con.close();
     }
 
-    private boolean exists(String useridA, String useridB) {
+    private List<UserDataSource> getSources() throws SQLException {
+        List<UserDataSource> userSources = new ArrayList<UserDataSource>();
+        ConnectionManager conMgr = new ConnectionManager();
+        Connection con = conMgr.getConnection();
+        Statement stmt = OnlineDatabaseAccessor.createStatement(con);
+        ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from users");
+
+        System.out.println("Tying to get user data...");
+        while (rs.next()) {
+            String userid = rs.getString("userid");
+            userSources.add(new UserDataSource(userid));
+            System.out.println("user:" + userid + " data loaded.");
+        }
+
+        System.out.println("User data all loaded");
+
+        rs.close();
+        stmt.close();
+        con.close();
+
+        return userSources;
+    }
+
+    private boolean exists(String useridA, String useridB, Connection con) {
 
         try {
-            ConnectionManager conMgr = new ConnectionManager();
-            Connection con = conMgr.getConnection();
+
             Statement stmt = OnlineDatabaseAccessor.createStatement(con);
             ResultSet rs = OnlineDatabaseAccessor.select(stmt, "select * from user_user where userid_a='"
                     + useridA + "' and userid_b='" + useridB + "'");
@@ -104,7 +120,6 @@ public class DataPreproccessor {
 
             rs.close();
             stmt.close();
-            con.close();
 
             return r;
         } catch (SQLException ex) {

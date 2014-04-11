@@ -15,6 +15,7 @@
  */
 package db;
 
+import classifier.ReaderClassifierAdaptorManager;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
@@ -88,66 +89,97 @@ public class DatabaseRefactor {
 
     public void refactorUserBook() throws SQLException {
         Connection con = new ConnectionManager().getConnection();
-        
+
         Statement stmt1 = OnlineDatabaseAccessor.createStatement(con);
         ResultSet rs = stmt1.executeQuery("select * from lib_borrowlist");
-        
+
         Statement stmt2 = OnlineDatabaseAccessor.createStatement(con);
         Statement stmt3 = OnlineDatabaseAccessor.createStatement(con);
 
-        while(rs.next()){
+        while (rs.next()) {
             String userid = "";
             String bookname = "";
             String author = "";
             int id = rs.getInt("user_int_id");
             int bookId = rs.getInt("book_id");
-            
-            ResultSet userRs = stmt2.executeQuery("select * from lib_user where id="+id+"");
-            if(userRs.next()){
+
+            ResultSet userRs = stmt2.executeQuery("select * from lib_user where id=" + id + "");
+            if (userRs.next()) {
                 userid = userRs.getString("userid");
             }
             userRs.close();
-            
-            ResultSet bookRs = stmt3.executeQuery("select * from lib_book where bookid="+bookId+"");
-            if(bookRs.next()){
+
+            ResultSet bookRs = stmt3.executeQuery("select * from lib_book where bookid=" + bookId + "");
+            if (bookRs.next()) {
                 bookname = bookRs.getString("bookname").replaceAll("'", "''");
                 author = bookRs.getString("author").replaceAll("'", "''");
             }
             bookRs.close();
-            
-            stmt2.execute("insert into user_book values('"+userid+"','"+bookname+"','"+author+"')");
+
+            stmt2.execute("insert into user_book values('" + userid + "','" + bookname + "','" + author + "')");
         }
     }
 
     public void refactorBookid() throws SQLException {
         Connection con = new ConnectionManager().getConnection();
-        
+
         Statement stmt1 = OnlineDatabaseAccessor.createStatement(con);
         ResultSet rs = stmt1.executeQuery("select * from books");
-        
+
         PreparedStatement stmt2 = (PreparedStatement) con.prepareStatement("update user_book set bookid=? where bookname=? and author=?");
 
         int count = 0;
-        while(rs.next()){
-           
-           Book aBook = Book.getBookFromResultSet(rs);
-           
-           
-           stmt2.setString(1, String.valueOf(aBook.getBookid()));
-           stmt2.setString(2, aBook.getBookName());
-           stmt2.setString(3, aBook.getAuthor());
-           
-           stmt2.execute();
-           
-           System.out.println("..."+count++);
-           
+        while (rs.next()) {
+
+            Book aBook = Book.getBookFromResultSet(rs);
+
+
+            stmt2.setString(1, String.valueOf(aBook.getBookid()));
+            stmt2.setString(2, aBook.getBookName());
+            stmt2.setString(3, aBook.getAuthor());
+
+            stmt2.execute();
+
+            System.out.println("..." + count++);
+
         }
-        
+
+        con.close();
+    }
+
+    public void refactorClassValue() throws SQLException {
+
+        ReaderClassifierAdaptorManager cMgr = new ReaderClassifierAdaptorManager();
+
+        Connection con = new ConnectionManager().getConnection();
+
+        Statement stmt1 = OnlineDatabaseAccessor.createStatement(con);
+        ResultSet rs = stmt1.executeQuery("select * from books");
+
+        PreparedStatement stmt2 = (PreparedStatement) con.prepareStatement("update books set classvalue=? where bookname=? and author=?");
+
+        int count = 0;
+        while (rs.next()) {
+
+            Book aBook = Book.getBookFromResultSet(rs);
+
+            String classValue =cMgr.classify(aBook);
+            System.out.println(classValue);
+            stmt2.setString(1, classValue);
+            stmt2.setString(2, aBook.getBookName());
+            stmt2.setString(3, aBook.getAuthor());
+
+            stmt2.execute();
+
+            System.out.println("..." + count++);
+
+        }
+
         con.close();
     }
 
     public static void main(String[] args) throws SQLException {
         DatabaseRefactor dr = new DatabaseRefactor();
-        dr.refactorBookid();
+        dr.refactorClassValue();
     }
 }

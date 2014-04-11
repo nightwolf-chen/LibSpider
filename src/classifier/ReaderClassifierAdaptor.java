@@ -177,26 +177,28 @@ public class ReaderClassifierAdaptor implements Serializable {
      */
     public String classifyReader(Book book) throws Exception {
         // Check whether classifier has been built.
-        this.buildClassifier();
-
-        // Make separate little test set so that message
-        // does not get added to string attribute in m_Data.
-        Instances testset = m_Data.stringFreeStructure();
-
-        // Make message into test instance.
-        Instance instance = makeInstance(book, testset);
-
-        // Filter instance.
-        m_Filter.input(instance);
-        Instance filteredInstance = m_Filter.output();
-
-        // Get index of predicted class value.
-        double predicted = m_Classifier.classifyInstance(filteredInstance);
-
-//        // Output class value.
-//        System.err.println("Reader classified as : "
-//                + m_Data.classAttribute().value((int) predicted));
-        return m_Data.classAttribute().value((int) predicted);
+//        this.buildClassifier();
+//
+//        // Make separate little test set so that message
+//        // does not get added to string attribute in m_Data.
+//        Instances testset = m_Data.stringFreeStructure();
+//
+//        // Make message into test instance.
+//        Instance instance = makeInstance(book, testset);
+//
+//        // Filter instance.
+//        m_Filter.input(instance);
+//        Instance filteredInstance = m_Filter.output();
+//
+//        // Get index of predicted class value.
+//        double predicted = m_Classifier.classifyInstance(filteredInstance);
+//
+////        // Output class value.
+////        System.err.println("Reader classified as : "
+////                + m_Data.classAttribute().value((int) predicted));
+//        return m_Data.classAttribute().value((int) predicted);
+        
+        return ReaderClassifierAdaptor.transferCategorycodeToClass(book.getCategoryCode());
     }
 
     public void buildClassifier() throws Exception {

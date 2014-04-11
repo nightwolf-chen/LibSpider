@@ -16,7 +16,6 @@
 package recommendation;
 
 import classifier.ReaderClassifierAdaptor;
-import classifier.ReaderClassifierAdaptorManager;
 import java.util.HashMap;
 import java.util.Map;
 import object.Book;
@@ -56,6 +55,10 @@ public class UserSimilarity {
             union += Math.max(a, b);
         }
         
+        if(union <= 0){
+            return 0;
+        }
+        
         double result = (double)intersection / (double)union;
         return result;
     }
@@ -63,15 +66,14 @@ public class UserSimilarity {
     private Map<String, Integer> getInfoMap(UserLibInfo userInfo) {
 
         Map<String, Integer> userInfoMap = new HashMap<String,Integer>();
-        ReaderClassifierAdaptorManager cMgr = new ReaderClassifierAdaptorManager();
-
+        
         for (String str : classValues) {
             userInfoMap.put(str, 0);
         }
 
-        for (Object obj : userInfo.getBorrowList()) {
-            Book book = (Book) obj;
-            String classValue = cMgr.classify(book);
+        for (Book book : userInfo.getBorrowList()) {
+            
+            String classValue = book.getClassValue();
             Integer lastCount = userInfoMap.get(classValue);
             userInfoMap.put(classValue, lastCount + 1);
         }

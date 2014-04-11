@@ -106,9 +106,10 @@ public class BookRecommendation {
             System.out.println(rs.getString("userid_a")+"|"+rs.getString("userid_b")+"="+rs.getDouble("similarity"));
             UserDataSource source = new UserDataSource(rs.getString("userid_b"));
             UserLibInfo info = source.getInfo();
-            Collections.sort(info.getBorrowList());
             books.addAll(info.getBorrowList());
         }
+        
+        Collections.sort(books);
         
         //删除用户已经借阅过的图书
         books.removeAll(this.infoA.getBorrowList());
@@ -128,20 +129,9 @@ public class BookRecommendation {
 
     public static void main(String[] args) throws Exception {
 
-        BookRecommendation bookRecommendation = new BookRecommendation("20100100001");
+        BookRecommendation bookRecommendation = new BookRecommendation("20101003712");
         System.out.println(bookRecommendation.infoA.getBorrowList().size());
-        System.out.println(bookRecommendation.getRecommendation().size());
-        List<Book> books = bookRecommendation.getRecommendation();
-        
-        for(Book book:bookRecommendation.infoA.getBorrowList()){
-            System.out.println(book);
-        }
-        
-        System.out.println("------------------------");
-        
-        for(Book book:books){
-            System.out.println(book);
-        }
+ 
         System.out.println(bookRecommendation.toJson());
     }
 }

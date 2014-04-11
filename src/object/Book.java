@@ -35,6 +35,7 @@ public class Book implements DBPersitance,Comparable<Book>{
     private String acquireCode;
     private int bookid;
     private int borrow_count;
+    private String classValue;
 
     public Book(String bookName, String author) {
         this.bookName = bookName;
@@ -45,6 +46,24 @@ public class Book implements DBPersitance,Comparable<Book>{
 
     }
 
+    public String getClassValue() {
+        return classValue;
+    }
+
+    public void setBookid(int bookid) {
+        this.bookid = bookid;
+    }
+
+    public void setBorrow_count(int borrow_count) {
+        this.borrow_count = borrow_count;
+    }
+
+    public void setClassValue(String classValue) {
+        this.classValue = classValue;
+    }
+
+    
+    
     public String getBookName() {
         return bookName;
     }
@@ -233,6 +252,7 @@ public class Book implements DBPersitance,Comparable<Book>{
             aBook.lang = rs.getString("lang");
             aBook.borrow_count = rs.getInt("borrow_count");
             aBook.bookid = rs.getInt("bookid");
+            aBook.classValue = rs.getString("classvalue");
         } catch (SQLException ex) {
             Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
         }
