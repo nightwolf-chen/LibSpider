@@ -12,8 +12,6 @@ import db.DBPersitance;
 import db.OnlineDatabaseAccessor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +34,8 @@ public class Book implements DBPersitance,Comparable<Book>{
     private int bookid;
     private int borrow_count;
     private String classValue;
+    private String bookURL;
+    private String imageURL;
 
     public Book(String bookName, String author) {
         this.bookName = bookName;
@@ -46,6 +46,23 @@ public class Book implements DBPersitance,Comparable<Book>{
 
     }
 
+    public String getBookURL() {
+        return bookURL;
+    }
+
+    public void setBookURL(String bookURL) {
+        this.bookURL = bookURL;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    
     public String getClassValue() {
         return classValue;
     }
@@ -61,8 +78,6 @@ public class Book implements DBPersitance,Comparable<Book>{
     public void setClassValue(String classValue) {
         this.classValue = classValue;
     }
-
-    
     
     public String getBookName() {
         return bookName;
@@ -253,6 +268,8 @@ public class Book implements DBPersitance,Comparable<Book>{
             aBook.borrow_count = rs.getInt("borrow_count");
             aBook.bookid = rs.getInt("bookid");
             aBook.classValue = rs.getString("classvalue");
+            aBook.bookURL = rs.getString("bookurl");
+            aBook.imageURL = rs.getString("imageurl");
         } catch (SQLException ex) {
             Logger.getLogger(Book.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -278,17 +295,19 @@ public class Book implements DBPersitance,Comparable<Book>{
 
     @Override
     public String toString() {
-        return "Book{" + "bookName=" + bookName + ", author=" + author + ", borrow_count=" + borrow_count + '}';
+        return "Book{" + "bookName=" + bookName + ", author=" + author + ", publishTime=" + publishTime + ", lang=" + lang + ", topic=" + topic + ", publisher=" + publisher + ", categoryCode=" + categoryCode + ", acquireCode=" + acquireCode + ", bookid=" + bookid + ", borrow_count=" + borrow_count + ", classValue=" + classValue + ", bookURL=" + bookURL + ", imageURL=" + imageURL + '}';
     }
+
     
-    public Map<String,String> toMap(){
-        Map<String,String> bookMap = new HashMap<String,String>();
-        bookMap.put("bookname", this.bookName);
-        bookMap.put("author", this.author);
-        bookMap.put("topic", this.topic);
-        bookMap.put("acquirecode", this.acquireCode);
-        bookMap.put("publisher", this.publisher);
-        bookMap.put("lang", this.lang);
-        return bookMap;
-    }
+//    
+//    public Map<String,String> toMap(){
+//        Map<String,String> bookMap = new HashMap<String,String>();
+//        bookMap.put("bookname", this.bookName);
+//        bookMap.put("author", this.author);
+//        bookMap.put("topic", this.topic);
+//        bookMap.put("acquirecode", this.acquireCode);
+//        bookMap.put("publisher", this.publisher);
+//        bookMap.put("lang", this.lang);
+//        return bookMap;
+//    }
 }
