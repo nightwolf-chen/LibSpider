@@ -71,6 +71,43 @@ public class UserDataSource {
 
     }
 
+    public String getFavoriteCategory(){
+        
+        int[] categoryCount = new int[27]; 
+        int index = 26;
+        int max = 0;
+        
+        for(Book book : this.info.getBorrowList()){
+            
+            String value = book.getClassValue();
+            char valueChr = value.charAt(0);
+            
+            if(valueChr >= 'A' && valueChr <= 'Z'){
+                categoryCount[valueChr - 'A']++;
+            }else{
+                categoryCount[26]++;
+            }
+            
+        }
+        
+        for(int i = 0 ; i < 27 ;i++){
+            
+            if(categoryCount[i] > max){
+                max = categoryCount[i];
+                index = i;
+            }
+            
+        }
+        
+        char result = '0';
+        
+        if(index < 26){
+            result = (char) ('A' + index);
+        }
+        
+        return ""+result;
+    }
+    
     public String getUserid() {
         return userid;
     }
@@ -81,8 +118,9 @@ public class UserDataSource {
     
     public static void main(String[] args){
         UserDataSource source = new UserDataSource("20101003712");
-        System.out.println(source.info.getBorrowList());
-        System.out.println(source.info.getBorrowList().size());
+//        System.out.println(source.info.getBorrowList());
+//        System.out.println(source.info.getBorrowList().size());
+        System.out.println(source.getFavoriteCategory());
     }
 
 }
